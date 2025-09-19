@@ -1,0 +1,144 @@
+from django.db import models
+from django.conf import settings
+
+
+# USER PROFILE
+
+class Profile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
+    headline = models.CharField(max_length=255, blank=True)
+    bio = models.TextField(blank=True)
+    location = models.CharField(max_length=255, blank=True)
+    profile_picture = models.ImageField(upload_to="profile_pics/", blank=True, null=True)
+    background_image = models.ImageField(upload_to="backgrounds/", blank=True, null=True)
+
+    def __str__(self):
+        return self.user.username
+
+
+# EXPERIENCE
+
+class Experience(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="experiences")
+    title = models.CharField(max_length=255)
+    company = models.CharField(max_length=255)
+    start_date = models.DateField()
+    end_date = models.DateField(blank=True, null=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.title} at {self.company}"
+
+
+# EDUCATION
+
+class Education(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="educations")
+    school = models.CharField(max_length=255)
+    degree = models.CharField(max_length=255, blank=True)
+    field_of_study = models.CharField(max_length=255, blank=True)
+    start_year = models.IntegerField()
+    end_year = models.IntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.school} - {self.degree}"
+
+
+# SKILLS
+
+class Skill(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+# UserSkill
+
+class UserSkill(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_skills")
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE, related_name="user_skills")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.skill.name}"
+
+# POSTS
+
+class Post(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="posts")
+    content = models.TextField()
+    media = models.FileField(upload_to="post_media/", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Post by {self.user.username}"
+
+# COMMENTS
+class Comment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.user.username}"
+
+#LIKES
+class Like(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="likes")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} liked post {self.post.id}"
+
+# -------------------------
+# CONNECTIONS (USER ↔ USER)
+# -------------------------
+class Connection(models.Model):
+    from_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="connections_sent")
+    to_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="connections_received")
+    status = models.CharField(max_length=20, choices=[("pending","Pending"),("accepted","Accepted"),("rejected","Rejected")])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('from_user', 'to_user')
+
+    def __str__(self):
+        return f"{self.from_user.username} → {self.to_user.username} ({self.status})"
+
+# -------------------------
+# MESSAGES (USER ↔ USER)
+# -------------------------
+class Message(models.Model):
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="messages_sent")
+    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="messages_received")
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender.username} → {self.receiver.username}"
+
+# -------------------------
+# JOBS AND JOB APPLICATIONS
+# -------------------------
+class Job(models.Model):
+    posted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="jobs_posted")
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    location = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class JobApplication(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="job_applications")
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="applications")
+    status = models.CharField(max_length=20, choices=[("applied","Applied"),("shortlisted","Shortlisted"),("rejected","Rejected"),("hired","Hired")])
+    applied_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'job')
+
+    def __str__(self):
+        return f"{self.user.username} applied to {self.job.title}"
