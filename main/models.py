@@ -65,14 +65,18 @@ class UserSkill(models.Model):
 
 class Post(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="posts")
-    content = models.TextField()
-    media = models.FileField(upload_to="post_media/", blank=True, null=True)
+    content = models.TextField(blank=True)
+    image = models.ImageField(upload_to='post_images/', blank=True, null=True)
+    video = models.FileField(upload_to='post_videos/', blank=True, null=True)
+    url = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Post by {self.user.username}"
 
+
 # COMMENTS
+
 class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments")
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
@@ -82,7 +86,9 @@ class Comment(models.Model):
     def __str__(self):
         return f"Comment by {self.user.username}"
 
+
 #LIKES
+
 class Like(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="likes")
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
@@ -91,9 +97,9 @@ class Like(models.Model):
     def __str__(self):
         return f"{self.user.username} liked post {self.post.id}"
 
-# -------------------------
+
 # CONNECTIONS (USER ↔ USER)
-# -------------------------
+
 class Connection(models.Model):
     from_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="connections_sent")
     to_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="connections_received")
@@ -106,9 +112,9 @@ class Connection(models.Model):
     def __str__(self):
         return f"{self.from_user.username} → {self.to_user.username} ({self.status})"
 
-# -------------------------
+
 # MESSAGES (USER ↔ USER)
-# -------------------------
+
 class Message(models.Model):
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="messages_sent")
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="messages_received")
@@ -118,9 +124,9 @@ class Message(models.Model):
     def __str__(self):
         return f"{self.sender.username} → {self.receiver.username}"
 
-# -------------------------
-# JOBS AND JOB APPLICATIONS
-# -------------------------
+
+# JOBS
+
 class Job(models.Model):
     posted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="jobs_posted")
     title = models.CharField(max_length=255)
@@ -130,6 +136,8 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title
+
+# JOB APPLICATIONS
 
 class JobApplication(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="job_applications")

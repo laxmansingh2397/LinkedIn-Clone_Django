@@ -1,0 +1,134 @@
+========================================================================
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f2ef;
+}
+
+/* ✅ Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.navbar .logo img {
+    width: 35px;
+}
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+.nav-links a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #666;
+    text-decoration: none;
+    font-size: 12px;
+}
+.nav-links a i {
+    font-size: 18px;
+    margin-bottom: 3px;
+}
+.nav-links a:hover {
+    color: #0a66c2;
+}
+
+/* ✅ Page Layout */
+.container {
+    display: grid;
+    grid-template-columns: 20% 55% 25%;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Left Sidebar */
+.sidebar-left {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+.sidebar-left img {
+    width: 70px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+.sidebar-left h3 {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+/* Feed */
+.feed {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.post-box {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+}
+.post-box textarea {
+    width: 100%;
+    border: none;
+    resize: none;
+    padding: 10px;
+    border-radius: 8px;
+    background: #f3f2ef;
+}
+.post-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+.post-actions button {
+    border: none;
+    background: none;
+    color: #666;
+    cursor: pointer;
+}
+.post {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+/* Right Sidebar */
+.sidebar-right {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+}
+.sidebar-right h4 {
+    margin-bottom: 10px;
+}
+.sidebar-right ul {
+    list-style: none;
+}
+.sidebar-right li {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+/* ✅ Responsive */
+@media (max-width: 900px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+    .sidebar-left, .sidebar-right {
+        display: none;
+    }
+}

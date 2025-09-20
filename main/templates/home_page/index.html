@@ -1,0 +1,64 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'home_page/styles.css'%}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        header,
+        section,
+        footer {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="LinkedIn Logo Image">
+        </div>
+        <div class="icons-btn-div">
+            <div class="icons">
+                <div class="icon">
+                    <i class="fa-solid fa-rocket"></i>
+                    <br />
+                    <p class="nav-text">Top Content</p>
+                </div>
+                <div class="icon">
+                    <i class="fa-solid fa-users"></i>
+                    <br />
+                    <p>People</p>
+                </div>
+                <div class="icon">
+                <i class="fa-solid fa-book-open"></i>
+                    <br />
+                    <p>Learning</p>
+                </div>
+                <div class="icon">
+                    <i class="fa-solid fa-briefcase"></i>
+                    <br />
+                    <p>Job</p>
+                </div>
+                <div class="icon">
+                    <i class="fa-solid fa-puzzle-piece"></i>
+                    <br />
+                    <p>Games</p>
+                </div>
+            </div>
+            <div class="partition"></div>
+            <div class="btns">
+                <button>Join now</button>
+                <button>Sign in</button>
+            </div>
+        </div>
+    </header>
+    
+</body>
+
+</html>
