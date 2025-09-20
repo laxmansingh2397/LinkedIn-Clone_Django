@@ -3,10 +3,12 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
-def home(request):
-    return render(request, 'home_page/index.html')
+def default(request):
+    return render(request, 'default_page/index.html')
 
 
 def login_view(request):
@@ -57,3 +59,9 @@ def signup_view(request):
         )
         login(request, user)
     return render(request, 'signup_page/signup.html')
+
+@login_required
+def home(request):
+    return render(request, 'home_page/home_page.html')
+
+
