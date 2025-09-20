@@ -1,0 +1,45 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up | LinkedIn</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'signup_page/styles.css'%}"></head>
+
+<body>
+    <header>
+        <div class="logo">
+            <img src="{% static 'images/logo.png' %}" alt="LinkedIn Logo Image">
+        </div>
+    </header>
+    <dir>
+        <p>Make the most of your professional life</p>
+    </dir>
+
+    <main class="auth-container">
+        <section class="auth-card">
+            <form method="post" action="{% url 'signup' %}">
+                {% csrf_token %}
+                <label for="first_name">First name</label>
+                <input id="first_name" name="first_name" type="text" required>
+
+                <label for="last_name">Last name</label>
+                <input id="last_name" name="last_name" type="text" required>
+
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" required>
+
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" required>
+
+                <button type="submit" class="primary">Agree & Join</button>
+            </form>
+            <p class="muted">Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+        </section>
+    </main>
+</body>
+
+</html>

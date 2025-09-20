@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkedIn</title>
+    <link rel="icon" type="image/png" href="{% static 'images/linkedin-icon.png' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'home_page/styles.css'%}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -53,8 +54,8 @@
             </div>
             <div class="partition"></div>
             <div class="btns">
-                <button>Join now</button>
-                <button>Sign in</button>
+                <button onclick="window.location.href='{% url 'signup' %}'">Join now</button>
+                <button onclick="window.location.href='{% url 'login' %}'">Sign in</button>
             </div>
         </div>
     </header>
