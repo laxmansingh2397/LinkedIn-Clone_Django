@@ -13,8 +13,9 @@
 <body>
     <!-- reuse header from index.html for consistent look -->
     <header>
-        <div class="logo">
-            <img src="{% static 'images/logo.png' %}" alt="LinkedIn Logo Image">
+        <div class="linkedin-logo">
+            <h1>Linked</h1>
+            <span class="in-logo">in</span>
         </div>
     </header>
 
@@ -30,7 +31,7 @@
 
                 <button type="submit" class="primary">Sign in</button>
             </form>
-            <p class="muted">New to LinkedIn? <a href="{% url 'signup' %}">Join now</a></p>
+            <p class="muted">New to LinkedIn? <a class="join-now-a-tag" href="{% url 'signup' %}">Join now</a></p>
         </section>
     </main>
 </body>

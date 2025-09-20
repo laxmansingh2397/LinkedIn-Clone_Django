@@ -4,25 +4,13 @@
     padding: 0;
 }
 
-
-.logo {
-    width: 100px;
-}
-
-.logo img {
-    width: 100%;
-    background: #fff;
-}
-
-/* Styles moved from login.html embedded block */
-/* Reset and base */
 body {
     font-family: Arial, sans-serif;
     background: #f3f2ef;
 }
 
-/* Navbar / header variants (keeps consistency with existing header) */
-.navbar {
+
+header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -33,20 +21,33 @@ body {
     top: 0;
     z-index: 1000;
 }
-
-.nav-links {
+.linkedin-logo {
     display: flex;
-    gap: 20px;
-}
-
-.nav-links a {
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    color: #666;
-    text-decoration: none;
-    font-size: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #0a66c2;
+    margin-left: 20px;
+    gap: 4px;
 }
+
+.in-logo {
+    color: white;
+    background-color: #0a66c2;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-size: 2rem;
+}
+
+.para {
+    padding-top: 20px;
+    text-align: center;
+    margin: 20px 0;
+    font-size: 2.2rem;
+    color: #142340;
+    font-weight: 100;
+}
+
 
 /* Auth layout */
 .auth-container {
@@ -94,6 +95,8 @@ body {
 .muted {
     color: #666;
     margin-top: 10px;
+    text-align: center;
+    padding-top: 20px;
 }
 
 @media (max-width: 900px) {

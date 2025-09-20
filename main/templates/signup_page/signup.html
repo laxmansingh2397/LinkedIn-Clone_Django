@@ -7,15 +7,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign up | LinkedIn</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'signup_page/styles.css'%}"></head>
+    <link rel="stylesheet" type="text/css" href="{% static 'signup_page/styles.css'%}">
+</head>
 
 <body>
     <header>
-        <div class="logo">
-            <img src="{% static 'images/logo.png' %}" alt="LinkedIn Logo Image">
+        <div class="linkedin-logo">
+            <h1>Linked</h1>
+            <span class="in-logo">in</span>
         </div>
     </header>
-    <dir>
+    <dir class="para">
         <p>Make the most of your professional life</p>
     </dir>
 
@@ -37,7 +39,7 @@
 
                 <button type="submit" class="primary">Agree & Join</button>
             </form>
-            <p class="muted">Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
+            <p class="muted">Already have an account? <a class="sign-in-a-tag" href="{% url 'login' %}">Sign in</a></p>
         </section>
     </main>
 </body>
