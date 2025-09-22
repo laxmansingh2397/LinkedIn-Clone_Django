@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Profile,Education,Experience,Skill,UserSkill,Post,Comment,Like,Connection,Message,Job,JobApplication
-
+from .forms import PostForm
 # Register your models here.
 
 admin.site.register(Profile)

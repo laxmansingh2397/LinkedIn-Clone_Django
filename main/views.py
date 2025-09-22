@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
+from .models import Post
+from .forms import PostForm
 
 
 # Create your views here.
@@ -62,6 +64,21 @@ def signup_view(request):
 
 @login_required
 def home(request):
-    return render(request, 'home_page/home_page.html')
+    if request.method == "POST":
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.user = request.user
+            post.save()
+            messages.success(request, "Posted successfully")
+            return redirect("home")
+        else:
+            print("PostForm error:", form.errors)
+            messages.error(request, "Could not create post. Check server console for form errors.")
+    else:
+        form = PostForm()
+
+    posts = Post.objects.all().order_by("-created_at")
+    return render(request, 'home_page/home_page.html', {"posts": posts, "form": form})
 
 

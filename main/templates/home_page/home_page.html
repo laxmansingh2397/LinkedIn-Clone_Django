@@ -6,58 +6,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feed | LinkedIn</title>
+    <link rel="icon" type="image/png" href="{% static 'images/linkedin-icon.png' %}">
     <link rel="stylesheet" href="{% static 'css/home_page/styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
     <header>
-        <div class="logo">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-supported-dps="24x24" fill="#0a66c2"
-                class="mercado-match" width="45" height="45" focusable="false">
-                <path
-                    d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z">
-                </path>
-            </svg>
-            <input class="input" type="text" placeholder="&#128269; Search" />
-        </div>
-        <div class="icons-btn-div">
-            <div class="icons">
-                <div class="icon">
-                    <i class="fa-solid fa-house"></i>
-                    <p class="nav-text">Home</p>
+        <div class="header-inner site-wrapper">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-supported-dps="24x24" fill="#0a66c2"
+                    class="mercado-match" width="45" height="45" focusable="false">
+                    <path
+                        d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z">
+                    </path>
+                </svg>
+                <input class="input" type="text" placeholder="&#128269; Search" />
+            </div>
+            <div class="icons-btn-div">
+                <div class="icons">
+                    <div class="icon">
+                        <i class="fa-solid fa-house"></i>
+                        <p class="nav-text">Home</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa-solid fa-users"></i>
+                        <p>My Network</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa-solid fa-briefcase"></i>
+                        <p>Job</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa-solid fa-comment-dots"></i>
+                        <p>Messaging</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa-solid fa-bell"></i>
+                        <p>Notification</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa-solid fa-user"></i>
+                        <p>Me</p>
+                    </div>
                 </div>
-                <div class="icon">
-                    <i class="fa-solid fa-users"></i>
-                    <p>My Network</p>
-                </div>
-                <div class="icon">
-                    <i class="fa-solid fa-briefcase"></i>
-                    <p>Job</p>
-                </div>
-                <div class="icon">
-                    <i class="fa-solid fa-comment-dots"></i>
-                    <p>Messaging</p>
-                </div>
-                <div class="icon">
-                    <i class="fa-solid fa-bell"></i>
-                    <p>Notification</p>
-                </div>
-                <div class="icon">
-                    <i class="fa-solid fa-user"></i>
-                    <p>Me</p>
+                <div class="partition"></div>
+                <div class="btns">
+                    <a class="btn-link" href="{% url 'default' %}">Logout</a>
                 </div>
             </div>
-            <div class="partition"></div>
-            <div class="btns">
-                <button onclick="window.location.href='{% url 'default' %}'">Logout</button>
-            </div>
-        </div>
-        <div class="icons-btn">
+            <div class="icons-btn">
 
-        </div>
+            </div>
     </header>
-    <main class="container">
+    <main class="container site-wrapper">
         <!-- Left Sidebar -->
         <aside class="sidebar-left">
             <div class="profile-card">
@@ -74,14 +76,37 @@
                 <div class="post-actions">
                     <button><i class="fa-solid fa-image"></i> Photo</button>
                     <button><i class="fa-solid fa-video"></i> Video</button>
-                    <button><i class="fa-solid fa-calendar"></i> Event</button>
+                    <button><i class="fa-solid fa-newspaper"></i> Write article</button>
+                </div>
+            </div>
+            <!-- Modal -->
+            <div id="postModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Create a Post</h2>
+                    <form method="POST" action="{% url 'home' %}">
+                        {% csrf_token %}
+                        <textarea name="content" placeholder="What do you want to talk about?" required></textarea>
+                        <button type="submit">Post</button>
+                    </form>
                 </div>
             </div>
 
+
+            {% for post in posts %}
             <div class="post">
-                <h4>John Doe</h4>
-                <p>This is a sample LinkedIn post clone 🚀</p>
+                <h4>{{ post.user.username }}</h4>
+                <p>{{ post.content }}</p>
+                {% if post.image %}
+                <img src="{{ post.image.url }}" width="200">
+                {% endif %}
+                {% if post.video %}
+                <video width="300" controls>
+                    <source src="{{ post.video.url }}">
+                </video>
+                {% endif %}
             </div>
+            {% endfor %}
         </section>
 
         <!-- Right Sidebar -->
@@ -96,7 +121,7 @@
             </div>
         </aside>
     </main>
-
+    <script src="{% static 'js/modal.js' %}"></script>
 </body>
 
 </html>
