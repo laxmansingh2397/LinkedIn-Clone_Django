@@ -79,6 +79,7 @@
                     <button><i class="fa-solid fa-newspaper"></i> Write article</button>
                 </div>
             </div>
+
             <!-- Modal -->
             <div id="postModal" class="modal">
                 <div class="modal-content">
@@ -92,21 +93,97 @@
                 </div>
             </div>
 
+            <!-- Photo Modal -->
+            <div id="photoModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Post a Photo</h2>
+                    <form method="POST" action="{% url 'home' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <textarea name="content" placeholder="Say something about this photo..." rows="3"
+                            required></textarea>
+                        <input type="file" name="image" accept="image/*" required>
+                        <input type="url" name="url" class="url" placeholder="Reference URL (optional)">
+                        <div class="modal-actions">
+                            <button type="submit">Post</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Video Modal -->
+            <div id="videoModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Post a Video</h2>
+                    <form method="POST" action="{% url 'home' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <textarea name="content" placeholder="Say something about this video..." rows="3"
+                            required></textarea>
+                        <input type="file" name="video" accept="video/*" required>
+                        <input type="url" name="url" class="url" placeholder="Reference URL (optional)">
+                        <div class="modal-actions">
+                            <button type="submit">Post</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Article Modal -->
+            <div id="articleModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Write an Article</h2>
+                    <form method="POST" action="{% url 'home' %}">
+                        {% csrf_token %}
+                        <input type="text" name="title" placeholder="Article title" required>
+                        <textarea name="content" placeholder="Write your article..." rows="6" required></textarea>
+                        <input type="file" name="media" accept="image/*,video/*">
+                        <input type="url" name="url" class="url" placeholder="Reference URL (optional)">
+                        <div class="modal-actions">
+                            <button type="submit">Post</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
 
             {% for post in posts %}
             <div class="post">
                 <h4>{{ post.user.username }}</h4>
+
+                {% if post.title %}
+                <h3>{{ post.title }}</h3>
+                {% endif %}
+
                 <p>{{ post.content }}</p>
+
+                {% if post.url %}
+                <p>
+                    <a href="{{ post.url }}" target="_blank" rel="noopener noreferrer">
+                        {{ post.url }}
+                    </a>
+                </p>
+                {% endif %}
+
                 {% if post.image %}
                 <img src="{{ post.image.url }}" width="200">
                 {% endif %}
+
                 {% if post.video %}
                 <video width="300" controls>
                     <source src="{{ post.video.url }}">
                 </video>
                 {% endif %}
+                <div class="post-btns">
+                    <button><i class="fa-regular fa-thumbs-up"></i> Like</button>
+                    <button><i class="fa-regular fa-comment-dots"></i> Comment</button>
+                    <button><i class="fa-solid fa-paper-plane"></i> Send</button>
+                </div>
             </div>
             {% endfor %}
+
         </section>
 
         <!-- Right Sidebar -->

@@ -5,7 +5,7 @@ from .models import Post
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['content']
+        fields = ['title', 'content', 'image', 'video', 'url']
         widgets = {
             'content' : forms.Textarea(attrs={
                 'placeholder': "What do you want to talk about?",

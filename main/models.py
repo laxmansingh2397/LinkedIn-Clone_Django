@@ -66,6 +66,7 @@ class UserSkill(models.Model):
 class Post(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="posts")
     content = models.TextField(blank=True)
+    title = models.CharField(max_length=255, blank=True, null=True)
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)
     video = models.FileField(upload_to='post_videos/', blank=True, null=True)
     url = models.URLField(blank=True, null=True)

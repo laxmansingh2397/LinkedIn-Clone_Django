@@ -3,6 +3,7 @@
     padding: 0;
     box-sizing: border-box;
 }
+
 body {
     font-family: Arial, sans-serif;
     background: #f3f2ef;
@@ -67,11 +68,13 @@ header {
     border-radius: 8px;
     text-align: center;
 }
+
 .sidebar-left img {
     width: 70px;
     border-radius: 50%;
     margin-bottom: 10px;
 }
+
 .sidebar-left h3 {
     font-size: 16px;
     margin-bottom: 5px;
@@ -83,12 +86,14 @@ header {
     flex-direction: column;
     gap: 20px;
 }
+
 .post-box {
     background: #fff;
     padding: 15px;
     border-radius: 8px;
 }
-.start-a-post{
+
+.start-a-post {
     width: 95%;
     border: none;
     padding: 15px;
@@ -97,21 +102,69 @@ header {
     text-align: center;
     cursor: pointer;
 }
+
 .post-actions {
     display: flex;
     justify-content: space-around;
     margin-top: 10px;
 }
+
 .post-actions button {
     border: none;
     background: none;
     color: #666;
     cursor: pointer;
 }
+
 .post {
     background: #fff;
     padding: 15px;
     border-radius: 8px;
+    margin-top: 10px;
+}
+
+.post h4 {
+    margin-bottom: 10px;
+}
+
+.post p {
+    font-size: 14px;
+    line-height: 1.5;padding-bottom: 10px;
+
+}
+
+.post-btns {
+    display: flex;
+    justify-content: space-around;
+    border-top: 1px solid #ddd;
+    margin-top: 10px;
+    padding-top: 8px;
+}
+
+.post-btns button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; /* space between icon and text */
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 0;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    border-radius: 8px;
+}
+
+.post-btns button:hover {
+    background-color: #f3f2ef; /* LinkedIn hover background */
+    color: #0a66c2; /* LinkedIn blue */
+}
+
+.post-btns i {
+    font-size: 16px;
 }
 
 /* Right Sidebar */
@@ -120,12 +173,15 @@ header {
     padding: 15px;
     border-radius: 8px;
 }
+
 .sidebar-right h4 {
     margin-bottom: 10px;
 }
+
 .sidebar-right ul {
     list-style: none;
 }
+
 .sidebar-right li {
     font-size: 14px;
     margin-bottom: 8px;
@@ -218,35 +274,165 @@ header {
 .nav-text {
     white-space: nowrap;
 }
+
 /* ===================================================================== */
 
-/* Modal Background */
 .modal {
-  display: none; 
-  position: fixed; 
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0,0,0,0.5);
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    transition: 0.3s;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Modal content box */
 .modal-content {
-  background: #fff;
-  margin: 10% auto;
-  padding: 20px;
-  border-radius: 10px;
-  width: 500px;
-  max-width: 90%;
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideDown 0.3s ease;
 }
 
-.close {
-  float: right;
-  font-size: 28px;
-  cursor: pointer;
+/* Close button */
+.modal .close {
+    color: #666;
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
 }
+
+.modal .close:hover {
+    color: #000;
+}
+
+/* Modal heading */
+.modal-content h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #0a66c2;
+}
+
+/* Textarea styling */
+.modal-content textarea,
+.modal-content input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    font-size: 14px;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* File input styling */
+.modal-content input[type="file"] {
+    display: block;
+    margin-bottom: 15px;
+}
+
+/* Buttons */
+.modal-content button {
+    background-color: #0a66c2;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.modal-content button:hover {
+    background-color: #004182;
+}
+
+/* Actions container at bottom */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;  /* Push button to right */
+    margin-top: 10px;
+}
+
+/* Post button */
+.modal-actions button {
+    background-color: #0a66c2;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.modal-actions button:hover {
+    background-color: #004182;
+}
+
+
+/* Specific styling for workflow buttons (photo/video/article) */
+.post-actions button {
+    background-color: #eef3f8;
+    color: #666;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-right: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.post-actions button:hover {
+    background-color: #d9e2f3;
+}
+
+/* Animation */
+@keyframes slideDown {
+    from {
+        transform: translateY(-30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .modal-content {
+        width: 95%;
+    }
+
+    .post-actions button {
+        margin-bottom: 8px;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 
 
 /* ✅ Responsive */
@@ -254,17 +440,41 @@ header {
     .container {
         grid-template-columns: 1fr;
     }
-    .sidebar-left, .sidebar-right {
+
+    .sidebar-left,
+    .sidebar-right {
         display: none;
     }
 }
 
 
 @media (max-width: 686px) {
-    .header-inner { padding: 0 8px; }
-    .input { max-width: 220px; }
-    .icons-btn-div { flex-direction: column-reverse; align-items: flex-start; gap: 8px; }
-    .icons { width: 100%; justify-content: space-between; gap: 8px; }
-    .btns { width: 100%; justify-content: flex-end; }
-    .partition { display: none; }
+    .header-inner {
+        padding: 0 8px;
+    }
+
+    .input {
+        max-width: 220px;
+    }
+
+    .icons-btn-div {
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .icons {
+        width: 100%;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .btns {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .partition {
+        display: none;
+    }
 }
