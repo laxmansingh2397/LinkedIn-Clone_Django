@@ -174,3 +174,19 @@ class JobApplication(models.Model):
 
     def __str__(self):
         return f"{self.user.username} applied to {self.job.title}"
+
+
+class Notification(models.Model):
+    NOTIF_TYPES = [
+        ('connection_request', 'Connection Request'),
+        ('connection_accepted', 'Connection Accepted'),
+    ]
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
+    from_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_notifications')
+    notif_type = models.CharField(max_length=50, choices=NOTIF_TYPES)
+    message = models.CharField(max_length=255, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification to {self.user.username} from {self.from_user.username} - {self.notif_type}"

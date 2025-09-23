@@ -1,0 +1,205 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connections</title>
+    <link rel="stylesheet" href="{% static 'css/home_page/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/connection/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="header-inner site-wrapper">
+            <div class="logo">
+                <a href="{% url 'home' %}" style="display:flex;align-items:center;text-decoration:none;color:inherit;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-supported-dps="24x24" fill="#0a66c2"
+                    class="mercado-match" width="45" height="45" focusable="false">
+                    <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"></path>
+                </svg>
+                </a>
+                <input class="input" type="text" placeholder="&#128269; Search" />
+            </div>
+            <div class="icons-btn-div">
+                <div class="icons">
+                    <a class="icon" href="{% url 'home' %}" style="text-decoration:none;color:inherit;">
+                        <i class="fa-solid fa-house"></i>
+                        <p class="nav-text">Home</p>
+                    </a>
+                    <div class="icon">
+                        <i class="fa-solid fa-users"></i>
+                        <p>My Network</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa-solid fa-briefcase"></i>
+                        <p>Job</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa-solid fa-comment-dots"></i>
+                        <p>Messaging</p>
+                    </div>
+                    <div class="icon notif">
+                        <a href="{% url 'connections' %}" style="position:relative; text-decoration:none; color:inherit;">
+                            <i class="fa-solid fa-bell"></i>
+                            {% if unread_notif_count and unread_notif_count > 0 %}
+                            <span class="notif-count">{{ unread_notif_count }}</span>
+                            {% endif %}
+                        </a>
+                        <div class="notif-dropdown">
+                            <ul>
+                                {% for n in recent_notifications %}
+                                <li>
+                                    <a href="{% url 'mark_notification' n.id %}" style="text-decoration:none;color:inherit;display:block;">
+                                        <strong>{{ n.from_user.username }}</strong>: {{ n.message }} <br />
+                                        <small>{{ n.created_at|date:"M d, H:i" }}</small>
+                                    </a>
+                                </li>
+                                {% empty %}
+                                <li>No notifications</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <p>Notification</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa-solid fa-user"></i>
+                        <p>Me</p>
+                    </div>
+                </div>
+                <div class="partition"></div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="btns">
+                        <a class="btn-link" href="{% url 'default' %}">Logout</a>
+                    </div>
+                </div>
+            </div>
+            <div class="icons-btn"></div>
+        </div>
+    </header>
+    <main class="connections-page site-wrapper">
+        <div class="connections-grid">
+            <!-- Left column: Profile / summary -->
+            <aside class="col left-col">
+                <div class="card profile-card">
+                    <div class="avatar">
+                        {% if request.user.profile_picture %}
+                        <img src="{{ request.user.profile_picture.url }}" alt="avatar">
+                        {% else %}
+                        <div class="avatar-fallback">{{ request.user.username|first|upper }}</div>
+                        {% endif %}
+                    </div>
+                    <h3>{{ request.user.get_full_name|default:request.user.username }}</h3>
+                    <p class="muted">{{ request.user.email }}</p>
+                    <div class="stats">
+                        <div><strong>{{ connection_count }}</strong><span>Connections</span></div>
+                        <div><strong>{{ received.count }}</strong><span>Pending</span></div>
+                    </div>
+                </div>
+                <div class="card tips">
+                    <h4>People you may know</h4>
+                    <p class="muted">Connect with people to grow your network.</p>
+                </div>
+            </aside>
+
+            <!-- Center column: main lists -->
+            <main class="col center-col">
+                <div class="card">
+                    <h2>Invitations</h2>
+                    <div class="invitations">
+                        {% if received %}
+                        {% for conn in received %}
+                        <div class="invitation-item">
+                            <div class="invitation-left">
+                                <div class="inv-avatar">{{ conn.from_user.username|first|upper }}</div>
+                                <div>
+                                    <div class="name">{{ conn.from_user.get_full_name|default:conn.from_user.username }}</div>
+                                    <div class="muted small">{{ conn.from_user.email }}</div>
+                                </div>
+                            </div>
+                            <div class="invitation-actions">
+                                <a class="btn btn-primary" href="{% url 'accept_connection_from' conn.from_user.id %}">Accept</a>
+                                <a class="btn btn-outline" href="{% url 'reject_connection_from' conn.from_user.id %}">Reject</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="muted">No new invitations</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Sent Requests</h2>
+                    <div class="sent-list">
+                        {% if sent %}
+                        {% for conn in sent %}
+                        <div class="sent-item">
+                            <div class="sent-left">
+                                <div class="sent-avatar">{{ conn.to_user.username|first|upper }}</div>
+                                <div>
+                                    <div class="name">{{ conn.to_user.get_full_name|default:conn.to_user.username }}</div>
+                                    <div class="muted small">{{ conn.to_user.email }}</div>
+                                </div>
+                            </div>
+                            <div class="sent-actions">
+                                {% if conn.status == 'pending' %}
+                                <a class="btn btn-outline" href="{% url 'withdraw_connection_to' conn.to_user.id %}">Withdraw</a>
+                                {% else %}
+                                <span class="muted">{{ conn.status }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="muted">No sent requests</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Your Connections</h2>
+                    <div class="connections-list">
+                        {% if accepted %}
+                        <div class="grid">
+                            {% for conn in accepted %}
+                            <div class="connection-card">
+                                {% if conn.from_user == request.user %}
+                                <div class="conn-name">{{ conn.to_user.get_full_name|default:conn.to_user.username }}</div>
+                                <div class="muted small">{{ conn.to_user.email }}</div>
+                                {% else %}
+                                <div class="conn-name">{{ conn.from_user.get_full_name|default:conn.from_user.username }}</div>
+                                <div class="muted small">{{ conn.from_user.email }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="muted">You have no connections yet</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </main>
+
+            <!-- Right column: News / suggestions -->
+            <aside class="col right-col">
+                <div class="card">
+                    <h4>LinkedIn News</h4>
+                    <ul class="news-list">
+                        <li>🚀 AI is booming in 2025</li>
+                        <li>💼 Tech jobs in demand</li>
+                        <li>🌍 Remote work trends</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Connections Tips</h4>
+                    <p class="muted small">Personalize your invite message to increase acceptance.</p>
+                </div>
+            </aside>
+        </div>
+    </div>
+    <script src="{% static 'js/modal.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+</body>
+</html>

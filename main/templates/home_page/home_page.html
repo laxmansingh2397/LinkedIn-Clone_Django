@@ -15,24 +15,26 @@
     <header>
         <div class="header-inner site-wrapper">
             <div class="logo">
+                <a href="{% url 'home' %}" style="display:flex;align-items:center;text-decoration:none;color:inherit;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-supported-dps="24x24" fill="#0a66c2"
                     class="mercado-match" width="45" height="45" focusable="false">
                     <path
                         d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z">
                     </path>
                 </svg>
+                </a>
                 <input class="input" type="text" placeholder="&#128269; Search" />
             </div>
             <div class="icons-btn-div">
                 <div class="icons">
-                    <div class="icon">
+                    <a class="icon" href="{% url 'home' %}" style="text-decoration:none;color:inherit;">
                         <i class="fa-solid fa-house"></i>
                         <p class="nav-text">Home</p>
-                    </div>
-                    <div class="icon">
+                    </a>
+                    <a class="icon" href="{% url 'connections' %}" style="text-decoration:none;color:inherit;">
                         <i class="fa-solid fa-users"></i>
                         <p>My Network</p>
-                    </div>
+                    </a>
                     <div class="icon">
                         <i class="fa-solid fa-briefcase"></i>
                         <p>Job</p>
@@ -41,8 +43,27 @@
                         <i class="fa-solid fa-comment-dots"></i>
                         <p>Messaging</p>
                     </div>
-                    <div class="icon">
-                        <i class="fa-solid fa-bell"></i>
+                    <div class="icon notif">
+                        <a href="{% url 'connections' %}" style="position:relative; text-decoration:none; color:inherit;">
+                            <i class="fa-solid fa-bell"></i>
+                            {% if unread_notif_count and unread_notif_count > 0 %}
+                            <span class="notif-count">{{ unread_notif_count }}</span>
+                            {% endif %}
+                        </a>
+                        <div class="notif-dropdown">
+                            <ul>
+                                {% for n in recent_notifications %}
+                                <li>
+                                    <a href="{% url 'mark_notification' n.id %}" style="text-decoration:none;color:inherit;display:block;">
+                                        <strong>{{ n.from_user.username }}</strong>: {{ n.message }} <br />
+                                        <small>{{ n.created_at|date:"M d, H:i" }}</small>
+                                    </a>
+                                </li>
+                                {% empty %}
+                                <li>No notifications</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                         <p>Notification</p>
                     </div>
                     <div class="icon">
@@ -51,8 +72,10 @@
                     </div>
                 </div>
                 <div class="partition"></div>
-                <div class="btns">
-                    <a class="btn-link" href="{% url 'default' %}">Logout</a>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="btns">
+                        <a class="btn-link" href="{% url 'default' %}">Logout</a>
+                    </div>
                 </div>
             </div>
             <div class="icons-btn">
@@ -101,12 +124,19 @@
                     Add Experience
                 </button>
                 {% endif %}
+
+                <!-- Connection button for the sidebar user (self or another) -->
+                <div style="margin-top:12px;">
+                    <!-- Sidebar connect button placeholder (you might want to show others' profiles here) -->
+                    <!-- Currently sidebar shows the logged-in user, so no connect button is needed -->
+                </div>
             </div>
 
 
-            <div class="connections sidebar-left">
-                <p><span>Connections</span><br>Grow your network</p>
-            </div>
+        <a href="{% url 'connections' %}" class="connections sidebar-left" style="text-decoration:none;color:inherit;">
+            <p><span>Connections</span><br>{{ connection_count|default:0 }} connections</p>
+        </a>
+            
             <div class="premium sidebar-left">
                 <p>Get hired 2.6x faster with Premium</p>
                 <span>Try for ₹0</span>
@@ -234,7 +264,23 @@
 
             {% for post in posts %}
             <div class="post">
-                <h4>{{ post.user.username }}</h4>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <h4>{{ post.user.username }}</h4>
+                    <div>
+                        {% if post.user.id != request.user.id %}
+                            {% if post.user.id in accepted_ids %}
+                                <span class="btn-link" style="padding:6px 10px;">Connected</span>
+                            {% elif post.user.id in pending_sent_ids %}
+                                <a class="btn-link" href="{% url 'withdraw_connection_to' post.user.id %}">Requested</a>
+                            {% elif post.user.id in pending_received_ids %}
+                                <a class="btn-link" href="{% url 'accept_connection_from' post.user.id %}">Accept</a>
+                                <a class="btn-link" href="{% url 'reject_connection_from' post.user.id %}">Reject</a>
+                            {% else %}
+                                <a class="btn-link" href="{% url 'send_connection' post.user.id %}">Connect</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
 
                 {% if post.title %}
                 <h3>{{ post.title }}</h3>
@@ -282,6 +328,7 @@
         </aside>
     </main>
     <script src="{% static 'js/modal.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
 </body>
 
 </html>
