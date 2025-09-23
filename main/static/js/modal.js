@@ -1,4 +1,25 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // ---- Post Modal ----
+    const postModal = document.getElementById("postModal");
+    const startBtn = document.querySelector(".start-a-post");
+
+    if (postModal && startBtn) {
+        startBtn.addEventListener("click", () => {
+            postModal.style.display = "block";
+        });
+    }
+
+    // Close post modal
+    const closePostBtn = postModal.querySelector(".close");
+    closePostBtn.addEventListener("click", () => {
+        postModal.style.display = "none";
+    });
+
+    // Close on outside click
+    window.addEventListener("click", (e) => {
+        if (e.target === postModal) postModal.style.display = "none";
+    });
+
     // ---- Post Modals ----
     const postModals = {
         post: document.getElementById("postModal"),
