@@ -1,58 +1,53 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Main start-a-post modal
-    const postModal = document.getElementById("postModal");
-    const startBtn = document.querySelector(".start-a-post");
+    // ---- Post Modals ----
+    const postModals = {
+        post: document.getElementById("postModal"),
+        photo: document.getElementById("photoModal"),
+        video: document.getElementById("videoModal"),
+        article: document.getElementById("articleModal")
+    };
 
-    // Photo/Video/Article modals
-    const photoModal = document.getElementById("photoModal");
-    const videoModal = document.getElementById("videoModal");
-    const articleModal = document.getElementById("articleModal");
+    const postButtons = {
+        start: document.querySelector(".start-a-post"),
+        photo: document.querySelector("button:has(i.fa-image)"),
+        video: document.querySelector("button:has(i.fa-video)"),
+        article: document.querySelector("button:has(i.fa-newspaper)")
+    };
 
-    // Close buttons (for all modals)
-    const closeBtns = document.querySelectorAll(".close");
+    // Open post modals
+    Object.keys(postButtons).forEach(key => {
+        if (postButtons[key] && postModals[key]) {
+            postButtons[key].addEventListener("click", () => {
+                postModals[key].style.display = "block";
+            });
+        }
+    });
 
-    // Open start-a-post modal
-    if (startBtn) {
-        startBtn.addEventListener("click", function () {
-            postModal.style.display = "block";
+    // ---- Experience Modal ----
+    const expModal = document.getElementById("experienceModal");
+    const addExpBtn = document.getElementById("addExperienceBtn");
+    if (expModal && addExpBtn) {
+        const closeExpBtn = expModal.querySelector(".close");
+        addExpBtn.addEventListener("click", () => expModal.style.display = "block");
+        closeExpBtn.addEventListener("click", () => expModal.style.display = "none");
+        window.addEventListener("click", (e) => {
+            if (e.target === expModal) expModal.style.display = "none";
         });
     }
 
-    // Open Photo modal
-    const photoBtn = document.querySelector("button:has(i.fa-image)");
-    if (photoBtn && photoModal) {
-        photoBtn.addEventListener("click", () => {
-            photoModal.style.display = "block";
-        });
-    }
-
-    // Open Video modal
-    const videoBtn = document.querySelector("button:has(i.fa-video)");
-    if (videoBtn && videoModal) {
-        videoBtn.addEventListener("click", () => {
-            videoModal.style.display = "block";
-        });
-    }
-
-    // Open Article modal
-    const articleBtn = document.querySelector("button:has(i.fa-newspaper)");
-    if (articleBtn && articleModal) {
-        articleBtn.addEventListener("click", () => {
-            articleModal.style.display = "block";
-        });
-    }
-
-    // Close modals on "x"
-    closeBtns.forEach(span => {
-        span.addEventListener("click", function () {
-            span.closest(".modal").style.display = "none";
+    // ---- Close buttons for all post modals ----
+    document.querySelectorAll(".close").forEach(span => {
+        span.addEventListener("click", () => {
+            const modal = span.closest(".modal");
+            if (modal) modal.style.display = "none";
         });
     });
 
-    // Close modals on click outside
-    window.addEventListener("click", function (event) {
-        [postModal, photoModal, videoModal, articleModal].forEach(modal => {
+    // ---- Close post modals on outside click ----
+    window.addEventListener("click", (event) => {
+        Object.values(postModals).forEach(modal => {
             if (event.target === modal) modal.style.display = "none";
         });
     });
 });
+

@@ -19,12 +19,35 @@ class Profile(models.Model):
 # EXPERIENCE
 
 class Experience(models.Model):
+    EMPLOYMENT_TYPES = [
+        ("Full-time", "Full-time"),
+        ("Part-time", "Part-time"),
+        ("Internship", "Internship"),
+        ("Freelance", "Freelance"),
+        ("Trainee", "Trainee"),
+        ("Self-employed", "Self-employed"),
+    ]
+
+    LOCATION_TYPES = [
+        ("On-site", "On-site"),
+        ("Hybrid", "Hybrid"),
+        ("Remote", "Remote"),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="experiences")
     title = models.CharField(max_length=255)
+    employment_type = models.CharField(max_length=50, choices=EMPLOYMENT_TYPES, blank=True, null=True)
     company = models.CharField(max_length=255)
     start_date = models.DateField()
     end_date = models.DateField(blank=True, null=True)
-    description = models.TextField(blank=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    location_type = models.CharField(max_length=50, choices=LOCATION_TYPES, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    profile_headline = models.CharField(max_length=255, blank=True, null=True)
+    where_found = models.CharField(max_length=255, blank=True, null=True)  # e.g., LinkedIn, Referral
+    skills = models.TextField(blank=True, null=True)  # store comma-separated skills
+    media = models.FileField(upload_to="experience_media/", blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.title} at {self.company}"

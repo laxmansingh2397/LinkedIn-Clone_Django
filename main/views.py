@@ -4,8 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
-from .models import Post
-from .forms import PostForm
+from .models import Post, Experience
+from .forms import PostForm, ExperienceForm
 
 
 # Create your views here.
@@ -79,6 +79,23 @@ def home(request):
         form = PostForm()
 
     posts = Post.objects.all().order_by("-created_at")
-    return render(request, 'home_page/home_page.html', {"posts": posts, "form": form})
+    experiences = Experience.objects.filter(user=request.user).order_by("-start_date")
+    experience_form = ExperienceForm()
+
+    return render(request, 'home_page/home_page.html', {"posts": posts, "form": form,"experience_form": experience_form,  "experiences": experiences})
 
 
+@login_required
+def add_experience(request):
+    if request.method == "POST":
+        form = ExperienceForm(request.POST, request.FILES)
+        if form.is_valid():
+            experience = form.save(commit=False)
+            experience.user = request.user
+            experience.save()
+            messages.success(request, "Experience added successfully")
+        else:
+            messages.error(request, "Failed to add experience")
+            print(form.errors)
+    
+    return redirect("home")

@@ -61,13 +61,96 @@
     </header>
     <main class="container site-wrapper">
         <!-- Left Sidebar -->
-        <aside class="sidebar-left">
-            <div class="profile-card">
-                <img src="{% static 'images/logo.jpg' %}" alt="Profile Pic">
-                <h3>User Name</h3>
-                <p>Software Engineer</p>
+        <aside>
+            <div class="profile-card sidebar-left">
+                <!-- Profile Image -->
+                <div class="profile-avatar">
+                    {% if request.user.profile_picture %}
+                    <img src="{{ request.user.profile_picture.url }}" alt="Profile Pic">
+                    {% else %}
+                    <div class="default-avatar">
+                        {{ request.user.username|first|upper }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Username -->
+                <h3>{{ request.user.username }}</h3>
+
+                <!-- Education (if exists) -->
+                {% if request.user.education %}
+                <p><strong>Education:</strong> {{ request.user.education }}</p>
+                {% endif %}
+
+                <!-- Location (if exists) -->
+                {% if request.user.location %}
+                <p><strong>Location:</strong> {{ request.user.location }}</p>
+                {% endif %}
+
+                <!-- Latest Experience Company (if any) -->
+                {% if experiences %}
+                {% with experiences.0 as latest_exp %}
+                <p><strong>Company:</strong> {{ latest_exp.company }}</p>
+                {% endwith %}
+                {% endif %}
+
+                <!-- Add Experience Button (only if no experience) -->
+                {% if not experiences %}
+                <button id="addExperienceBtn" class="linkedin-btn">
+                    <i class="fa-solid fa-plus" style="margin-right: 6px;"></i>
+                    Add Experience
+                </button>
+                {% endif %}
+            </div>
+
+
+            <div class="connections sidebar-left">
+                <p><span>Connections</span><br>Grow your network</p>
+            </div>
+            <div class="premium sidebar-left">
+                <p>Get hired 2.6x faster with Premium</p>
+                <span>Try for ₹0</span>
+            </div>
+            <div class="sidebar-left">
+                <div class="sidebar-icons">
+                    <i class="fa-solid fa-bookmark"></i>
+                    <p>Saved items</p>
+                </div>
+                <div class="sidebar-icons">
+                    <i class="fa-solid fa-people-group"></i>
+                    <p>Groups</p>
+                </div>
+                <div class="sidebar-icons">
+                    <i class="fa-regular fa-newspaper"></i>
+                    <p>Newsletters</p>
+                </div>
+                <div class="sidebar-icons">
+                    <i class="fa-solid fa-calendar"></i>
+                    <p>Events</p>
+                </div>
             </div>
         </aside>
+
+        <!-- Experience Modal -->
+
+        <div id="experienceModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <div class="experience-modal-scroll">
+                    <span class="close">&times;</span>
+                    <h2>Add Experience</h2>
+                    <form id="experienceForm" method="POST" enctype="multipart/form-data"
+                        action="{% url 'add_experience' %}">
+                        {% csrf_token %}
+                        {{ experience_form.as_p }}
+                        <button type="submit">Save</button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+
+
 
         <!-- Feed Section -->
         <section class="feed">
