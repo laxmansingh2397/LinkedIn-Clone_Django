@@ -1,17 +1,14 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,get_user_model
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
-from .models import Post, Experience
-from .models import Connection, Notification
+from .models import Post, Experience, Connection, Notification, Like
 from .forms import PostForm, ExperienceForm
-from .models import Connection
 from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from .models import Like
 
 
 # Create your views here.
@@ -50,7 +47,7 @@ def signup_view(request):
 
         if not username:
             if email:
-                username = email.split('@')[0]  
+                username = email.split('@')[0]
             else:
                 return f"user_{User.objects.count()+1}"
 
@@ -91,22 +88,22 @@ def home(request):
     experience_form = ExperienceForm()
 
     # build connection helpers for templates
-    conns = Connection.objects.filter(Q(from_user=request.user) | Q(to_user=request.user))
+    connections = Connection.objects.filter(Q(from_user=request.user) | Q(to_user=request.user))
     accepted_ids = set()
     pending_sent_ids = set()
     pending_received_map = {}  # from_user_id -> connection_id
     pending_received_ids = set()
 
-    for c in conns:
-        if c.status == 'accepted':
-            other = c.to_user if c.from_user == request.user else c.from_user
+    for connection in connections:
+        if connection.status == 'accepted':
+            other = connection.to_user if connection.from_user == request.user else connection.from_user
             accepted_ids.add(other.id)
-        elif c.status == 'pending':
-            if c.from_user == request.user:
-                pending_sent_ids.add(c.to_user.id)
+        elif connection.status == 'pending':
+            if connection.from_user == request.user:
+                pending_sent_ids.add(connection.to_user.id)
             else:
-                pending_received_map[c.from_user.id] = c.id
-                pending_received_ids.add(c.from_user.id)
+                pending_received_map[connection.from_user.id] = connection.id
+                pending_received_ids.add(connection.from_user.id)
 
     # notifications for header
     unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
@@ -114,9 +111,8 @@ def home(request):
 
     connection_count = len(accepted_ids)
     # list of user objects for accepted connections (useful for share dropdown)
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-    connection_users = User.objects.filter(id__in=accepted_ids)
+    user = get_user_model()
+    connection_users = user.objects.filter(id__in=accepted_ids)
 
     return render(request, 'home_page/home_page.html', {"posts": posts, "form": form, "experience_form": experience_form,  "experiences": experiences, 'accepted_ids': accepted_ids, 'pending_sent_ids': pending_sent_ids, 'pending_received_map': pending_received_map, 'pending_received_ids': pending_received_ids, 'unread_notif_count': unread_count, 'recent_notifications': recent_notifications, 'connection_count': connection_count, 'liked_post_ids': liked_post_ids, 'connection_users': connection_users})
 
@@ -139,7 +135,7 @@ def add_experience(request):
 
 @login_required
 def send_connection(request, to_user_id):
-    from django.contrib.auth import get_user_model
+    
     User = get_user_model()
     try:
         to_user = User.objects.get(pk=to_user_id)
@@ -166,15 +162,15 @@ def send_connection(request, to_user_id):
 @login_required
 def accept_connection(request, connection_id):
     try:
-        conn = Connection.objects.get(pk=connection_id, to_user=request.user, status='pending')
+        connection = Connection.objects.get(pk=connection_id, to_user=request.user, status='pending')
     except Connection.DoesNotExist:
         messages.error(request, "Connection request not found")
         return redirect('connections')
 
-    conn.status = 'accepted'
-    conn.save()
+    connection.status = 'accepted'
+    connection.save()
     # notify the requester
-    Notification.objects.create(user=conn.from_user, from_user=request.user, notif_type='connection_accepted', message=f"{request.user.username} accepted your connection request")
+    Notification.objects.create(user=connection.from_user, from_user=request.user, notif_type='connection_accepted', message=f"{request.user.username} accepted your connection request")
     messages.success(request, "Connection accepted")
     return redirect('connections')
 
@@ -182,13 +178,13 @@ def accept_connection(request, connection_id):
 @login_required
 def reject_connection(request, connection_id):
     try:
-        conn = Connection.objects.get(pk=connection_id, to_user=request.user, status='pending')
+        connection = Connection.objects.get(pk=connection_id, to_user=request.user, status='pending')
     except Connection.DoesNotExist:
         messages.error(request, "Connection request not found")
         return redirect('connections')
 
-    conn.status = 'rejected'
-    conn.save()
+    connection.status = 'rejected'
+    connection.save()
     messages.success(request, "Connection rejected")
     return redirect('connections')
 
@@ -196,12 +192,12 @@ def reject_connection(request, connection_id):
 @login_required
 def withdraw_connection(request, connection_id):
     try:
-        conn = Connection.objects.get(pk=connection_id, from_user=request.user)
+        connection = Connection.objects.get(pk=connection_id, from_user=request.user)
     except Connection.DoesNotExist:
         messages.error(request, "Connection not found")
         return redirect('home')
 
-    conn.delete()
+    connection.delete()
     messages.success(request, "Connection withdrawn")
     return redirect('home')
 
@@ -224,19 +220,19 @@ def my_connections(request):
 @login_required
 def mark_notification(request, notif_id):
     try:
-        notif = Notification.objects.get(pk=notif_id, user=request.user)
-        notif.is_read = True
-        notif.save()
+        notification = Notification.objects.get(pk=notif_id, user=request.user)
+        notification.is_read = True
+        notification.save()
     except Notification.DoesNotExist:
         # silently ignore if not found or not permitted
-        notif = None
+        notification = None
 
     # if this notification refers to a post like, redirect user to the post on home feed
-    if notif and notif.notif_type == 'post_like':
+    if notification and notification.notif_type == 'post_like':
         import re
-        m = re.search(r'id:(\d+)', notif.message or '')
-        if m:
-            post_id = m.group(1)
+        message = re.search(r'id:(\d+)', notification.message or '')
+        if message:
+            post_id = message.group(1)
             return redirect(f"/profile/#post-{post_id}")
 
     return redirect('connections')
@@ -260,13 +256,13 @@ def accept_connection_from(request, from_user_id):
 @login_required
 def reject_connection_from(request, from_user_id):
     try:
-        conn = Connection.objects.get(from_user__id=from_user_id, to_user=request.user, status='pending')
+        connection = Connection.objects.get(from_user__id=from_user_id, to_user=request.user, status='pending')
     except Connection.DoesNotExist:
         messages.error(request, "Connection request not found")
         return redirect('home')
 
-    conn.status = 'rejected'
-    conn.save()
+    connection.status = 'rejected'
+    connection.save()
     messages.success(request, "Connection rejected")
     return redirect('home')
 
@@ -274,12 +270,12 @@ def reject_connection_from(request, from_user_id):
 @login_required
 def withdraw_connection_to(request, to_user_id):
     try:
-        conn = Connection.objects.get(from_user=request.user, to_user__id=to_user_id, status='pending')
+        connection = Connection.objects.get(from_user=request.user, to_user__id=to_user_id, status='pending')
     except Connection.DoesNotExist:
         messages.error(request, "Connection not found")
         return redirect('home')
 
-    conn.delete()
+    connection.delete()
     messages.success(request, "Connection withdrawn")
     return redirect('home')
 
@@ -300,7 +296,6 @@ def profile(request):
     recent_notifications = Notification.objects.filter(user=user).order_by('-created_at')[:6]
 
     # determine which posts the current user has liked
-    from .models import Like
     liked_post_ids = set(Like.objects.filter(user=user, post__in=posts).values_list('post_id', flat=True))
 
     return render(request, 'profile/profile.html', {'user_profile': user, 'posts': posts, 'experiences': experiences, 'connection_count': connection_count, 'unread_notif_count': unread_count, 'recent_notifications': recent_notifications, 'liked_post_ids': liked_post_ids})
