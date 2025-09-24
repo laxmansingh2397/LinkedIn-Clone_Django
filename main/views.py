@@ -229,7 +229,16 @@ def mark_notification(request, notif_id):
         notif.save()
     except Notification.DoesNotExist:
         # silently ignore if not found or not permitted
-        pass
+        notif = None
+
+    # if this notification refers to a post like, redirect user to the post on home feed
+    if notif and notif.notif_type == 'post_like':
+        import re
+        m = re.search(r'id:(\d+)', notif.message or '')
+        if m:
+            post_id = m.group(1)
+            return redirect(f"/home/#post-{post_id}")
+
     return redirect('connections')
 
 
@@ -293,6 +302,9 @@ def toggle_post_like(request):
     else:
         Like.objects.create(user=request.user, post=post)
         liked = True
+        # notify post owner about the like (if not self)
+        if post.user != request.user:
+            Notification.objects.create(user=post.user, from_user=request.user, notif_type='post_like', message=f"{request.user.username} liked your post (id:{post.id})")
 
     count = post.likes.count()
     return JsonResponse({'ok': True, 'liked': liked, 'count': count})

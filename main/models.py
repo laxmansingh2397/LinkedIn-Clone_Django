@@ -180,6 +180,7 @@ class Notification(models.Model):
     NOTIF_TYPES = [
         ('connection_request', 'Connection Request'),
         ('connection_accepted', 'Connection Accepted'),
+    ('post_like', 'Post Like'),
     ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
     from_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_notifications')
