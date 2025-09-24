@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from .models import Post, Experience, Connection, Notification, Like
+from .models import Share
 from .forms import PostForm, ExperienceForm
 from django.db.models import Q
 from django.http import JsonResponse
@@ -228,7 +229,7 @@ def mark_notification(request, notif_id):
         notification = None
 
     # if this notification refers to a post like, redirect user to the post on home feed
-    if notification and notification.notif_type == 'post_like':
+    if notification and notification.notif_type in ('post_like','post_shared'):
         import re
         message = re.search(r'id:(\d+)', notification.message or '')
         if message:
@@ -298,7 +299,17 @@ def profile(request):
     # determine which posts the current user has liked
     liked_post_ids = set(Like.objects.filter(user=user, post__in=posts).values_list('post_id', flat=True))
 
-    return render(request, 'profile/profile.html', {'user_profile': user, 'posts': posts, 'experiences': experiences, 'connection_count': connection_count, 'unread_notif_count': unread_count, 'recent_notifications': recent_notifications, 'liked_post_ids': liked_post_ids})
+    # build list of accepted connection users for share dropdown
+    accepted_ids = set()
+    conns_all = Connection.objects.filter(Q(from_user=user) | Q(to_user=user))
+    for c in conns_all:
+        if c.status == 'accepted':
+            other = c.to_user if c.from_user == user else c.from_user
+            accepted_ids.add(other.id)
+    user_model = get_user_model()
+    connection_users = user_model.objects.filter(id__in=accepted_ids)
+
+    return render(request, 'profile/profile.html', {'user_profile': user, 'posts': posts, 'experiences': experiences, 'connection_count': connection_count, 'unread_notif_count': unread_count, 'recent_notifications': recent_notifications, 'liked_post_ids': liked_post_ids, 'connection_users': connection_users})
 
 
 @login_required
@@ -325,3 +336,31 @@ def toggle_post_like(request):
 
     count = post.likes.count()
     return JsonResponse({'ok': True, 'liked': liked, 'count': count})
+
+
+@login_required
+@require_POST
+def share_post(request):
+    post_id = request.POST.get('post_id')
+    to_user_id = request.POST.get('to_user_id')
+    message = request.POST.get('message', '')
+    if not post_id or not to_user_id:
+        return JsonResponse({'error': 'post_id and to_user_id required'}, status=400)
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({'error': 'post not found'}, status=404)
+    User = get_user_model()
+    try:
+        to_user = User.objects.get(pk=to_user_id)
+    except User.DoesNotExist:
+        return JsonResponse({'error': 'target user not found'}, status=404)
+
+    # create share record
+    Share.objects.create(user=request.user, post=post, to_user=to_user, message=message)
+
+    # notify the recipient
+    if to_user != request.user:
+        Notification.objects.create(user=to_user, from_user=request.user, notif_type='post_shared', message=f"{request.user.username} shared a post (id:{post.id})")
+
+    return JsonResponse({'ok': True})

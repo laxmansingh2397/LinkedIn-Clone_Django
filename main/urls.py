@@ -22,6 +22,7 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     # post interactions
     path('post/toggle-like/', views.toggle_post_like, name='toggle_post_like'),
+    path('post/share/', views.share_post, name='share_post'),
 ]
 
 if settings.DEBUG:

@@ -122,6 +122,20 @@ class Like(models.Model):
         return f"{self.user.username} liked post {self.post.id}"
 
 
+# SHARES
+
+class Share(models.Model):
+    # allow nulls initially so migrations don't require a one-off default for existing rows
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='shares', null=True, blank=True)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='shares')
+    to_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='received_shares', null=True, blank=True)
+    message = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} shared post {self.post.id} -> {self.to_user.username}"
+
+
 # CONNECTIONS (USER ↔ USER)
 
 class Connection(models.Model):
@@ -181,6 +195,7 @@ class Notification(models.Model):
         ('connection_request', 'Connection Request'),
         ('connection_accepted', 'Connection Accepted'),
     ('post_like', 'Post Like'),
+    ('post_shared', 'Post Shared'),
     ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
     from_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sent_notifications')
