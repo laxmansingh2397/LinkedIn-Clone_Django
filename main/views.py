@@ -9,6 +9,9 @@ from .models import Connection, Notification
 from .forms import PostForm, ExperienceForm
 from .models import Connection
 from django.db.models import Q
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from .models import Like
 
 
 # Create your views here.
@@ -82,6 +85,8 @@ def home(request):
         form = PostForm()
 
     posts = Post.objects.all().order_by("-created_at")
+    # compute which posts the current user has liked to render UI state
+    liked_post_ids = set(Like.objects.filter(user=request.user, post__in=posts).values_list('post_id', flat=True))
     experiences = Experience.objects.filter(user=request.user).order_by("-start_date")
     experience_form = ExperienceForm()
 
@@ -108,7 +113,12 @@ def home(request):
     recent_notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:6]
 
     connection_count = len(accepted_ids)
-    return render(request, 'home_page/home_page.html', {"posts": posts, "form": form, "experience_form": experience_form,  "experiences": experiences, 'accepted_ids': accepted_ids, 'pending_sent_ids': pending_sent_ids, 'pending_received_map': pending_received_map, 'pending_received_ids': pending_received_ids, 'unread_notif_count': unread_count, 'recent_notifications': recent_notifications, 'connection_count': connection_count})
+    # list of user objects for accepted connections (useful for share dropdown)
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    connection_users = User.objects.filter(id__in=accepted_ids)
+
+    return render(request, 'home_page/home_page.html', {"posts": posts, "form": form, "experience_form": experience_form,  "experiences": experiences, 'accepted_ids': accepted_ids, 'pending_sent_ids': pending_sent_ids, 'pending_received_map': pending_received_map, 'pending_received_ids': pending_received_ids, 'unread_notif_count': unread_count, 'recent_notifications': recent_notifications, 'connection_count': connection_count, 'liked_post_ids': liked_post_ids, 'connection_users': connection_users})
 
 
 @login_required
@@ -263,3 +273,26 @@ def withdraw_connection_to(request, to_user_id):
     conn.delete()
     messages.success(request, "Connection withdrawn")
     return redirect('home')
+
+
+@login_required
+@require_POST
+def toggle_post_like(request):
+    post_id = request.POST.get('post_id')
+    if not post_id:
+        return JsonResponse({'error': 'post_id required'}, status=400)
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({'error': 'post not found'}, status=404)
+
+    existing = Like.objects.filter(user=request.user, post=post).first()
+    if existing:
+        existing.delete()
+        liked = False
+    else:
+        Like.objects.create(user=request.user, post=post)
+        liked = True
+
+    count = post.likes.count()
+    return JsonResponse({'ok': True, 'liked': liked, 'count': count})
