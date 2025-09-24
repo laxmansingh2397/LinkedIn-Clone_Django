@@ -237,7 +237,7 @@ def mark_notification(request, notif_id):
         m = re.search(r'id:(\d+)', notif.message or '')
         if m:
             post_id = m.group(1)
-            return redirect(f"/home/#post-{post_id}")
+            return redirect(f"/profile/#post-{post_id}")
 
     return redirect('connections')
 
@@ -282,6 +282,28 @@ def withdraw_connection_to(request, to_user_id):
     conn.delete()
     messages.success(request, "Connection withdrawn")
     return redirect('home')
+
+
+@login_required
+def profile(request):
+    # show current user's profile page (for 'me')
+    user = request.user
+    posts = Post.objects.filter(user=user).order_by('-created_at')
+    experiences = Experience.objects.filter(user=user).order_by('-start_date')
+
+    # connection counts
+    conns = Connection.objects.filter(Q(from_user=user) | Q(to_user=user), status='accepted')
+    connection_count = conns.count()
+
+    # notifications for header
+    unread_count = Notification.objects.filter(user=user, is_read=False).count()
+    recent_notifications = Notification.objects.filter(user=user).order_by('-created_at')[:6]
+
+    # determine which posts the current user has liked
+    from .models import Like
+    liked_post_ids = set(Like.objects.filter(user=user, post__in=posts).values_list('post_id', flat=True))
+
+    return render(request, 'profile/profile.html', {'user_profile': user, 'posts': posts, 'experiences': experiences, 'connection_count': connection_count, 'unread_notif_count': unread_count, 'recent_notifications': recent_notifications, 'liked_post_ids': liked_post_ids})
 
 
 @login_required

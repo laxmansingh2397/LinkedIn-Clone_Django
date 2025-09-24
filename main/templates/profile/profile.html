@@ -1,0 +1,189 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | LinkedIn</title>
+    <link rel="icon" type="image/png" href="{% static 'images/linkedin-icon.png' %}">
+    <link rel="stylesheet" href="{% static 'css/home_page/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- reuse header from home_page -->
+    <header>
+        <div class="header-inner site-wrapper">
+            <div class="logo">
+                <a href="{% url 'home' %}" style="display:flex;align-items:center;text-decoration:none;color:inherit;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-supported-dps="24x24"
+                        fill="#0a66c2" class="mercado-match" width="45" height="45" focusable="false">
+                        <path
+                            d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z">
+                        </path>
+                    </svg>
+                </a>
+                <input class="input" type="text" placeholder="&#128269; Search" />
+            </div>
+            <div class="icons-btn-div">
+                <div class="icons">
+                    <a class="icon" href="{% url 'home' %}" style="text-decoration:none;color:inherit;">
+                        <i class="fa-solid fa-house"></i>
+                        <p class="nav-text">Home</p>
+                    </a>
+                    <a class="icon" href="{% url 'connections' %}" style="text-decoration:none;color:inherit;">
+                        <i class="fa-solid fa-users"></i>
+                        <p>My Network</p>
+                    </a>
+                    <div class="icon">
+                        <i class="fa-solid fa-briefcase"></i>
+                        <p>Job</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa-solid fa-comment-dots"></i>
+                        <p>Messaging</p>
+                    </div>
+                    <div class="icon notif">
+                        <a href="{% url 'connections' %}"
+                            style="position:relative; text-decoration:none; color:inherit;">
+                            <i class="fa-solid fa-bell"></i>
+                            {% if unread_notif_count and unread_notif_count > 0 %}
+                            <span class="notif-count">{{ unread_notif_count }}</span>
+                            {% endif %}
+                        </a>
+                        <div class="notif-dropdown">
+                            <ul>
+                                {% for n in recent_notifications %}
+                                <li>
+                                    <a href="{% url 'mark_notification' n.id %}"
+                                        style="text-decoration:none;color:inherit;display:block;">
+                                        <strong>{{ n.from_user.username }}</strong>: {{ n.message }} <br />
+                                        <small>{{ n.created_at|date:"M d, H:i" }}</small>
+                                    </a>
+                                </li>
+                                {% empty %}
+                                <li>No notifications</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <p>Notification</p>
+                    </div>
+                    <div class="icon">
+                         <i class="fa-solid fa-user"></i>
+                         <p><a href="{% url 'profile' %}" style="text-decoration:none;color:inherit;">Me</a></p>
+                    </div>
+                </div>
+                <div class="partition"></div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="btns">
+                        <a class="btn-link" href="{% url 'default' %}">Logout</a>
+                    </div>
+                </div>
+            </div>
+            <div class="icons-btn">
+
+            </div>
+    </header>
+
+    <main class="container site-wrapper">
+        <!-- Left Sidebar -->
+        <aside>
+            <div class="profile-card sidebar-left">
+                <!-- Profile Image -->
+                <div class="profile-avatar">
+                    {% if user_profile.profile.profile_picture %}
+                    <img src="{{ user_profile.profile.profile_picture.url }}" alt="Profile Pic">
+                    {% else %}
+                    <div class="default-avatar">
+                        {{ user_profile.username|first|upper }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Username -->
+                <h3>{{ user_profile.get_full_name|default:user_profile.username }}</h3>
+
+                <!-- Connection count link -->
+                <a href="{% url 'connections' %}" style="text-decoration:none;color:inherit;">
+                    <p><strong>{{ connection_count }}</strong><br>Connections</p>
+                </a>
+
+                <!-- Latest Experience Company (if any) -->
+                {% if experiences %}
+                {% with experiences.0 as latest_exp %}
+                <p><strong>Company:</strong> {{ latest_exp.company }}</p>
+                {% endwith %}
+                {% endif %}
+
+            </div>
+        </aside>
+
+        <!-- Profile Posts -->
+        <section class="feed">
+            <div class="post-box">
+                <h2>{{ user_profile.get_full_name|default:user_profile.username }}'s posts</h2>
+            </div>
+
+            {% for post in posts %}
+            <div class="post" id="post-{{ post.id }}">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <h4>{{ post.user.username }}</h4>
+                </div>
+
+                {% if post.title %}
+                <h3>{{ post.title }}</h3>
+                {% endif %}
+
+                <p>{{ post.content }}</p>
+
+                {% if post.url %}
+                <p>
+                    <a href="{{ post.url }}" target="_blank" rel="noopener noreferrer">
+                        {{ post.url }}
+                    </a>
+                </p>
+                {% endif %}
+
+                {% if post.image %}
+                <img src="{{ post.image.url }}" width="200">
+                {% endif %}
+
+                {% if post.video %}
+                <video width="300" controls>
+                    <source src="{{ post.video.url }}">
+                </video>
+                {% endif %}
+                <div class="post-btns">
+                    <button class="post-like-btn {% if post.id in liked_post_ids %}liked{% endif %}"
+                        data-post-id="{{ post.id }}">
+                        <i class="fa-regular fa-thumbs-up"></i>
+                        <span class="like-text">Like</span>
+                        <span class="like-count">{{ post.likes.count }}</span>
+                    </button>
+                    <button class="comment-toggle"><i class="fa-regular fa-comment-dots"></i> Comment <span
+                            class="comment-count">{{ post.comments.count }}</span></button>
+                </div>
+            </div>
+            {% endfor %}
+
+        </section>
+
+        <!-- Right Sidebar -->
+        <aside class="sidebar-right">
+            <div class="widget">
+                <h4>LinkedIn News</h4>
+                <ul>
+                    <li>🚀 AI is booming in 2025</li>
+                    <li>💼 Tech jobs in demand</li>
+                    <li>🌍 Remote work trends</li>
+                </ul>
+            </div>
+        </aside>
+    </main>
+    <script src="{% static 'js/modal.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    <script src="{% static 'js/post_interactions.js' %}"></script>
+</body>
+
+</html>

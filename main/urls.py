@@ -19,6 +19,7 @@ urlpatterns = [
     path('connect/withdraw-to/<int:to_user_id>/', views.withdraw_connection_to, name='withdraw_connection_to'),
     path('connections/', views.my_connections, name='connections'),
     path('notification/<int:notif_id>/', views.mark_notification, name='mark_notification'),
+    path('profile/', views.profile, name='profile'),
     # post interactions
     path('post/toggle-like/', views.toggle_post_like, name='toggle_post_like'),
 ]
