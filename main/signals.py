@@ -14,5 +14,10 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=User)
-def save_user_profile(sender,insance, **kwargs):
-    insance.profile.save()
+def save_user_profile(sender, instance, **kwargs):
+    # guard in case profile hasn't been created yet
+    try:
+        profile = instance.profile
+    except Exception:
+        return
+    profile.save()

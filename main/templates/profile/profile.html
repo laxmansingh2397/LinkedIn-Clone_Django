@@ -8,10 +8,15 @@
     <title>Profile | LinkedIn</title>
     <link rel="icon" type="image/png" href="{% static 'images/linkedin-icon.png' %}">
     <link rel="stylesheet" href="{% static 'css/home_page/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile_page/styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
+    <!-- ensure CSRF cookie is present for AJAX calls -->
+    <form style="display:none;">
+        {% csrf_token %}
+    </form>
     <!-- reuse header from home_page -->
     <header>
         <div class="header-inner site-wrapper">
@@ -121,6 +126,44 @@
 
         <!-- Profile Posts -->
         <section class="feed">
+
+            <!-- Profile header (LinkedIn-like) -->
+            <div class="profile-header">
+                <div class="profile-cover"></div>
+                <div class="profile-header-inner site-wrapper">
+                    <div class="profile-left">
+                        <div class="profile-avatar-large">
+                            {% if user_profile.profile.profile_picture %}
+                                <img src="{{ user_profile.profile.profile_picture.url }}" alt="Profile Pic">
+                            {% else %}
+                                <div class="default-avatar-large">{{ user_profile.username|first|upper }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="profile-meta">
+                            <h1>{{ user_profile.get_full_name|default:user_profile.username }}</h1>
+                            <p class="muted">{{ user_profile.profile.headline|default:'' }}</p>
+                            <p><a class="connections-link" href="{% url 'connections' %}">{{ connection_count }} connections</a></p>
+                            <div class="profile-actions">
+                                <button class="btn primary">Open to</button>
+                                <button class="btn outline">Add profile section</button>
+                                <button class="btn outline">Enhance profile</button>
+                                <button class="btn ghost">Resources</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-right">
+                        <div class="profile-top-badges">
+                            {% if user_profile.profile.company %}
+                                <div class="badge">{{ user_profile.profile.company }}</div>
+                            {% endif %}
+                            {% if user_profile.profile.education %}
+                                <div class="badge">{{ user_profile.profile.education }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="post-box">
                 <h2>{{ user_profile.get_full_name|default:user_profile.username }}'s posts</h2>
             </div>
