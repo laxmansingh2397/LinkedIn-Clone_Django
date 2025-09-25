@@ -317,11 +317,20 @@
                     <button class="share-toggle" data-post-id="{{ post.id }}"><i class="fa-solid fa-paper-plane"></i> Share</button>
                 </div>
                 <!-- share dropdown (simple) -->
-                <div class="share-dropdown" data-post-id="{{ post.id }}" style="display:none;">
-                    <ul>
+                <!-- share dropdown removed in favor of modal -->
+            </div>
+            {% endfor %}
+
+            <!-- Share Modal (single, reusable) -->
+            <div id="shareModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close" id="shareModalClose">&times;</span>
+                    <h3>Share post</h3>
+                    <p>Select a connection to share this post with:</p>
+                    <ul id="shareModalUserList">
                         {% if connection_users %}
                             {% for u in connection_users %}
-                                <li><button class="share-to-user" data-post-id="{{ post.id }}" data-user-id="{{ u.id }}">Share to {{ u.username }}</button></li>
+                                <li><button class="modal-share-to-user" data-user-id="{{ u.id }}">Share to {{ u.username }}</button></li>
                             {% endfor %}
                         {% else %}
                             <li>No connections to share with</li>
@@ -329,7 +338,6 @@
                     </ul>
                 </div>
             </div>
-            {% endfor %}
 
         </section>
 

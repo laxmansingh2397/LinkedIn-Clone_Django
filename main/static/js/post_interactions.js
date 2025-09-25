@@ -53,16 +53,56 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   });
 
-  // share dropdown toggle
+  // share modal handling
+  let currentSharePostId = null;
+  const shareModal = document.getElementById('shareModal');
+  const shareModalClose = shareModal ? document.getElementById('shareModalClose') : null;
+
+  // open modal when share button clicked
   document.querySelectorAll('.share-toggle').forEach(btn=>{
     btn.addEventListener('click', function(e){
-      const id = btn.dataset.postId;
-      const dd = document.querySelector('.share-dropdown[data-post-id="'+id+'"]');
-      if(dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+      currentSharePostId = btn.dataset.postId;
+      if(shareModal) shareModal.style.display = 'block';
     });
   });
 
-  // share to user
+  // close modal
+  if(shareModalClose){
+    shareModalClose.addEventListener('click', function(){
+      if(shareModal) shareModal.style.display = 'none';
+      currentSharePostId = null;
+    });
+  }
+
+  // when a user in the modal is clicked
+  document.querySelectorAll('.modal-share-to-user').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      const userId = btn.dataset.userId;
+      if(!currentSharePostId){
+        alert('No post selected');
+        return;
+      }
+      fetch('/post/share/',{
+        method:'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: new URLSearchParams({post_id: currentSharePostId, to_user_id: userId})
+      }).then(r=>r.json()).then(data=>{
+        if(data.ok){
+          alert('Shared successfully');
+          if(shareModal) shareModal.style.display = 'none';
+          currentSharePostId = null;
+        } else if(data.error){
+          alert('Error: '+data.error);
+        }
+      }).catch(e=>console.error(e));
+    });
+  });
+
+  // fallback: keep existing direct share buttons working if present
   document.querySelectorAll('.share-to-user').forEach(btn=>{
     btn.addEventListener('click', function(){
       const postId = btn.dataset.postId;
