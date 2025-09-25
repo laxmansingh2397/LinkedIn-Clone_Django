@@ -4,10 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
-from .models import Post, Experience, Connection, Notification, Like
-from .models import Share
-from .forms import PostForm, ExperienceForm
-from .forms import ProfileForm
+from .models import Post, Experience, Connection, Notification, Like, Share
+from .forms import PostForm, ExperienceForm, ProfileForm
 from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -243,14 +241,14 @@ def mark_notification(request, notif_id):
 @login_required
 def accept_connection_from(request, from_user_id):
     try:
-        conn = Connection.objects.get(from_user__id=from_user_id, to_user=request.user, status='pending')
+        connection = Connection.objects.get(from_user__id=from_user_id, to_user=request.user, status='pending')
     except Connection.DoesNotExist:
         messages.error(request, "Connection request not found")
         return redirect('home')
 
-    conn.status = 'accepted'
-    conn.save()
-    Notification.objects.create(user=conn.from_user, from_user=request.user, notif_type='connection_accepted', message=f"{request.user.username} accepted your connection request")
+    connection.status = 'accepted'
+    connection.save()
+    Notification.objects.create(user=connection.from_user, from_user=request.user, notif_type='connection_accepted', message=f"{request.user.username} accepted your connection request")
     messages.success(request, "Connection accepted")
     return redirect('home')
 
@@ -290,8 +288,8 @@ def profile(request):
     experiences = Experience.objects.filter(user=user).order_by('-start_date')
 
     # connection counts
-    conns = Connection.objects.filter(Q(from_user=user) | Q(to_user=user), status='accepted')
-    connection_count = conns.count()
+    connections = Connection.objects.filter(Q(from_user=user) | Q(to_user=user), status='accepted')
+    connection_count = connections.count()
 
     # notifications for header
     unread_count = Notification.objects.filter(user=user, is_read=False).count()
@@ -302,10 +300,10 @@ def profile(request):
 
     # build list of accepted connection users for share dropdown
     accepted_ids = set()
-    conns_all = Connection.objects.filter(Q(from_user=user) | Q(to_user=user))
-    for c in conns_all:
-        if c.status == 'accepted':
-            other = c.to_user if c.from_user == user else c.from_user
+    connection_all = Connection.objects.filter(Q(from_user=user) | Q(to_user=user))
+    for connection in connection_all:
+        if connection.status == 'accepted':
+            other = connection.to_user if connection.from_user == user else connection.from_user
             accepted_ids.add(other.id)
     user_model = get_user_model()
     connection_users = user_model.objects.filter(id__in=accepted_ids)
@@ -350,23 +348,22 @@ def save_activity(request):
 @login_required
 def save_experience(request):
     if request.method == 'POST':
-        exp_id = request.POST.get('id')
+        experience_id = request.POST.get('id')
         title = request.POST.get('title','')
         company = request.POST.get('company','')
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
         location = request.POST.get('location','')
-        from .models import Experience
-        if exp_id:
+        if experience_id:
             try:
-                exp = Experience.objects.get(pk=exp_id, user=request.user)
-                exp.title = title
-                exp.company = company
+                experience = Experience.objects.get(pk=experience_id, user=request.user)
+                experience.title = title
+                experience.company = company
                 if start_date:
-                    exp.start_date = start_date
-                exp.end_date = end_date or None
-                exp.location = location
-                exp.save()
+                    experience.start_date = start_date
+                experience.end_date = end_date or None
+                experience.location = location
+                experience.save()
                 messages.success(request, 'Experience updated')
             except Experience.DoesNotExist:
                 messages.error(request, 'Experience not found')
@@ -461,3 +458,15 @@ def share_post(request):
         Notification.objects.create(user=to_user, from_user=request.user, notif_type='post_shared', message=f"{request.user.username} shared a post (id:{post.id})")
 
     return JsonResponse({'ok': True})
+
+
+@login_required
+def user_posts(request, username):
+    if username != request.user.username:
+        return redirect('profile')
+
+    posts = Post.objects.filter(user=request.user).order_by("-created_at")
+    return render(request, "posts_page/post_page.html", {
+        "user_profile": request.user,
+        "posts": posts,
+    })

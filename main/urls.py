@@ -27,6 +27,8 @@ urlpatterns = [
     # post interactions
     path('post/toggle-like/', views.toggle_post_like, name='toggle_post_like'),
     path('post/share/', views.share_post, name='share_post'),
+    path("user/<str:username>/posts/", views.user_posts, name="user_posts"),
+
 ]
 
 if settings.DEBUG:

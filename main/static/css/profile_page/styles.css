@@ -291,3 +291,13 @@
 .modal-content h3 {
     margin-top: 0;
 }
+
+.show-all-posts {
+    text-align: center;
+    cursor: pointer;
+}
+
+.show-all-posts-hr {
+    margin: 12px 0;
+    border: 1px solid #eee;
+}
