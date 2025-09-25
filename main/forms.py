@@ -67,3 +67,15 @@ class ProfileForm(forms.ModelForm):
         if commit:
             profile.save()
         return profile
+
+
+class EducationForm(forms.ModelForm):
+    class Meta:
+        model = __import__('main.models', fromlist=['Education']).Education
+        fields = ['school', 'degree', 'field_of_study', 'start_year', 'end_year']
+
+    def clean_start_year(self):
+        val = self.cleaned_data.get('start_year')
+        if val and val < 1900:
+            raise forms.ValidationError('Start year seems invalid')
+        return val

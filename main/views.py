@@ -337,6 +337,79 @@ def edit_profile(request):
 
 
 @login_required
+def save_activity(request):
+    if request.method == 'POST':
+        bio = request.POST.get('bio','')
+        profile = getattr(request.user, 'profile', None)
+        if profile:
+            profile.bio = bio
+            profile.save()
+    return redirect('profile')
+
+
+@login_required
+def save_experience(request):
+    if request.method == 'POST':
+        exp_id = request.POST.get('id')
+        title = request.POST.get('title','')
+        company = request.POST.get('company','')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        location = request.POST.get('location','')
+        from .models import Experience
+        if exp_id:
+            try:
+                exp = Experience.objects.get(pk=exp_id, user=request.user)
+                exp.title = title
+                exp.company = company
+                if start_date:
+                    exp.start_date = start_date
+                exp.end_date = end_date or None
+                exp.location = location
+                exp.save()
+                messages.success(request, 'Experience updated')
+            except Experience.DoesNotExist:
+                messages.error(request, 'Experience not found')
+        else:
+            # create new experience
+            try:
+                Experience.objects.create(user=request.user, title=title, company=company, start_date=start_date or '2000-01-01', end_date=end_date or None, location=location)
+                messages.success(request, 'Experience added')
+            except Exception as e:
+                messages.error(request, 'Failed to add experience')
+    return redirect('profile')
+
+
+@login_required
+def save_education(request):
+    if request.method == 'POST':
+        edu_id = request.POST.get('id')
+        school = request.POST.get('school','')
+        degree = request.POST.get('degree','')
+        start_year = request.POST.get('start_year') or 2020
+        end_year = request.POST.get('end_year') or None
+        from .models import Education
+        if edu_id:
+            try:
+                edu = Education.objects.get(pk=edu_id, user=request.user)
+                edu.school = school
+                edu.degree = degree
+                edu.start_year = int(start_year)
+                edu.end_year = int(end_year) if end_year else None
+                edu.save()
+                messages.success(request, 'Education updated')
+            except Education.DoesNotExist:
+                messages.error(request, 'Education not found')
+        else:
+            try:
+                Education.objects.create(user=request.user, school=school, degree=degree, start_year=int(start_year), end_year=(int(end_year) if end_year else None))
+                messages.success(request, 'Education added')
+            except Exception:
+                messages.error(request, 'Failed to add education')
+    return redirect('profile')
+
+
+@login_required
 @require_POST
 def toggle_post_like(request):
     post_id = request.POST.get('post_id')

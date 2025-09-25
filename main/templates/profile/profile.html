@@ -173,6 +173,141 @@
                 </div>
             </div>
 
+            <!-- Activity / Experience / Education cards -->
+            <div class="cards-row">
+                <div class="card activity-card">
+                    <div class="card-header">
+                        <h3>Activity</h3>
+                        <button class="start-a-post">Create a post</button>
+                        <div>
+                            <button class="card-edit" data-target="#activityModal">Edit</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ user_profile.profile.bio|default:'You haven\'t posted yet' }}</p>
+                    </div>
+                </div>
+
+                <div class="card experience-card">
+                    <div class="card-header">
+                        <h3>Experience</h3>
+                        <button class="card-edit" data-target="#experienceModal">Add</button>
+                    </div>
+                    <div class="card-body">
+                        {% if experiences %}
+                            <ul class="list-unstyled">
+                            {% for exp in experiences %}
+                                <li>
+                                    <div class="item-icon">🏢</div>
+                                    <div class="item-content">
+                                        <strong>{{ exp.title }}</strong>
+                                        <div class="muted">{{ exp.company }} &middot; {{ exp.location }}</div>
+                                        <div class="muted">{{ exp.start_date }} - {% if exp.end_date %}{{ exp.end_date }}{% else %}Present{% endif %}</div>
+                                    </div>
+                                    <div class="actions-right">
+                                        <button class="card-edit small" data-target="#experienceModal" data-id="{{ exp.id }}" data-title="{{ exp.title }}" data-company="{{ exp.company }}" data-start_date="{{ exp.start_date }}" data-end_date="{{ exp.end_date }}" data-location="{{ exp.location }}">✏️</button>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No experience yet</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card education-card">
+                    <div class="card-header">
+                        <h3>Education</h3>
+                        <button class="card-edit" data-target="#educationModal">Add</button>
+                    </div>
+                    <div class="card-body">
+                        {% if user_profile.educations.all %}
+                            <ul class="list-unstyled">
+                            {% for edu in user_profile.educations.all %}
+                                <li>
+                                    <div class="item-icon">🎓</div>
+                                    <div class="item-content">
+                                        <strong>{{ edu.school }}</strong>
+                                        <div class="muted">{{ edu.degree }}</div>
+                                        <div class="muted">{{ edu.start_year }} - {% if edu.end_year %}{{ edu.end_year }}{% else %}Present{% endif %}</div>
+                                    </div>
+                                    <div class="actions-right">
+                                        <button class="card-edit small" data-target="#educationModal" data-id="{{ edu.id }}" data-school="{{ edu.school }}" data-degree="{{ edu.degree }}" data-start_year="{{ edu.start_year }}" data-end_year="{{ edu.end_year }}">✏️</button>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No education listed</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- create a post modal -->
+            <div id="postModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Create a Post</h2>
+                    <form method="POST" action="{% url 'home' %}">
+                        {% csrf_token %}
+                        <textarea name="content" placeholder="What do you want to talk about?" required></textarea>
+                        <input type="file" name="image" accept="image/*" >
+                        <input type="file" name="video" accept="video/*">
+                        <input type="url" name="url" class="url" placeholder="Reference URL (optional)">
+                        <button type="submit">Post</button>
+                    </form>
+                </div>
+            </div>
+
+                        <!-- Activity Modal -->
+            <div id="activityModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close activityClose">&times;</span>
+                    <h3>Edit activity</h3>
+                    <form method="POST" action="{% url 'save_activity' %}">
+                        {% csrf_token %}
+                        <textarea name="bio" rows="4">{{ user_profile.profile.bio }}</textarea>
+                        <div style="text-align:right;margin-top:10px;"><button type="submit" class="btn primary">Save</button></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Experience Modal -->
+            <div id="experienceModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close experienceClose">&times;</span>
+                    <h3>Add / Edit experience</h3>
+                    <form method="POST" action="{% url 'save_experience' %}">
+                        {% csrf_token %}
+                        <input type="text" name="title" placeholder="Position title">
+                        <input type="text" name="company" placeholder="Company">
+                        <input type="date" name="start_date">
+                        <input type="date" name="end_date">
+                        <input type="text" name="location" placeholder="Location">
+                        <div style="text-align:right;margin-top:10px;"><button type="submit" class="btn primary">Save</button></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Education Modal -->
+            <div id="educationModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close educationClose">&times;</span>
+                    <h3>Add / Edit education</h3>
+                    <form method="POST" action="{% url 'save_education' %}">
+                        {% csrf_token %}
+                        <input type="text" name="school" placeholder="School">
+                        <input type="text" name="degree" placeholder="Degree">
+                        <input type="number" name="start_year" placeholder="Start year">
+                        <input type="number" name="end_year" placeholder="End year">
+                        <div style="text-align:right;margin-top:10px;"><button type="submit" class="btn primary">Save</button></div>
+                    </form>
+                </div>
+            </div>
+
+
             <div class="post-box">
                 <h2>{{ user_profile.get_full_name|default:user_profile.username }}'s posts</h2>
             </div>
@@ -296,6 +431,64 @@
             }
             if(close){ close.addEventListener('click', ()=> modal.style.display='none'); }
             if(cancel){ cancel.addEventListener('click', ()=> modal.style.display='none'); }
+        });
+    </script>
+    <script>
+        // wire up card edit buttons to open modals and prefill values when data- attributes present
+        document.addEventListener('DOMContentLoaded', function(){
+            document.querySelectorAll('.card-edit').forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    var target = btn.getAttribute('data-target');
+                    if(!target) return;
+                    var modal = document.querySelector(target);
+                    if(!modal) return;
+
+                    // prefill for experience
+                    if(target === '#experienceModal'){
+                        var id = btn.dataset.id || '';
+                        modal.querySelector('input[name="title"]').value = btn.dataset.title || '';
+                        modal.querySelector('input[name="company"]').value = btn.dataset.company || '';
+                        modal.querySelector('input[name="start_date"]').value = btn.dataset.start_date || '';
+                        modal.querySelector('input[name="end_date"]').value = btn.dataset.end_date || '';
+                        modal.querySelector('input[name="location"]').value = btn.dataset.location || '';
+                        // ensure hidden id field exists
+                        var idField = modal.querySelector('input[name="id"]');
+                        if(!idField){
+                            idField = document.createElement('input');
+                            idField.type = 'hidden';
+                            idField.name = 'id';
+                            modal.querySelector('form').appendChild(idField);
+                        }
+                        idField.value = id;
+                    }
+
+                    // prefill for education
+                    if(target === '#educationModal'){
+                        var id = btn.dataset.id || '';
+                        modal.querySelector('input[name="school"]').value = btn.dataset.school || '';
+                        modal.querySelector('input[name="degree"]').value = btn.dataset.degree || '';
+                        modal.querySelector('input[name="start_year"]').value = btn.dataset.start_year || '';
+                        modal.querySelector('input[name="end_year"]').value = btn.dataset.end_year || '';
+                        var idField = modal.querySelector('input[name="id"]');
+                        if(!idField){
+                            idField = document.createElement('input');
+                            idField.type = 'hidden';
+                            idField.name = 'id';
+                            modal.querySelector('form').appendChild(idField);
+                        }
+                        idField.value = id;
+                    }
+
+                    modal.style.display = 'block';
+                });
+            });
+
+            // close buttons for generated modals handled by modal.js already; add simple close when clicking outside
+            document.querySelectorAll('.modal').forEach(function(m){
+                m.addEventListener('click', function(e){
+                    if(e.target === m) m.style.display = 'none';
+                });
+            });
         });
     </script>
 </body>

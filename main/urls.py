@@ -21,6 +21,9 @@ urlpatterns = [
     path('notification/<int:notif_id>/', views.mark_notification, name='mark_notification'),
     path('profile/', views.profile, name='profile'),
     path('profile/edit/', views.edit_profile, name='edit_profile'),
+    path('profile/save-activity/', views.save_activity, name='save_activity'),
+    path('profile/save-experience/', views.save_experience, name='save_experience'),
+    path('profile/save-education/', views.save_education, name='save_education'),
     # post interactions
     path('post/toggle-like/', views.toggle_post_like, name='toggle_post_like'),
     path('post/share/', views.share_post, name='share_post'),
