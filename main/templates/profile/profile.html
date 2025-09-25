@@ -129,7 +129,11 @@
 
             <!-- Profile header (LinkedIn-like) -->
             <div class="profile-header">
+                {% if user_profile.profile.background_image %}
+                <div class="profile-cover" style="background-image: url('{{ user_profile.profile.background_image.url }}'); background-size: cover; background-position: center;"></div>
+                {% else %}
                 <div class="profile-cover"></div>
+                {% endif %}
                 <div class="profile-header-inner site-wrapper">
                     <div class="profile-left">
                         <div class="profile-avatar-large">
@@ -142,6 +146,9 @@
                         <div class="profile-meta">
                             <h1>{{ user_profile.get_full_name|default:user_profile.username }}</h1>
                             <p class="muted">{{ user_profile.profile.headline|default:'' }}</p>
+                            {% if user_profile.profile.location %}
+                            <p class="muted small">{{ user_profile.profile.location }}</p>
+                            {% endif %}
                             <p><a class="connections-link" href="{% url 'connections' %}">{{ connection_count }} connections</a></p>
                             <div class="profile-actions">
                                 <button class="btn primary">Open to</button>
@@ -152,6 +159,8 @@
                         </div>
                     </div>
                     <div class="profile-right">
+                        <button id="editProfileBtn" class="btn outline">Edit</button>
+                    </div>
                         <div class="profile-top-badges">
                             {% if user_profile.profile.company %}
                                 <div class="badge">{{ user_profile.profile.company }}</div>
@@ -230,6 +239,35 @@
                 </div>
             </div>
 
+            <!-- Edit Profile Modal -->
+            <div id="editProfileModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close" id="editProfileClose">&times;</span>
+                    <h3>Edit intro</h3>
+                    <form id="editProfileForm" method="POST" action="{% url 'edit_profile' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <label>First name</label>
+                        <input type="text" name="first_name" value="{{ user_profile.first_name }}">
+                        <label>Last name</label>
+                        <input type="text" name="last_name" value="{{ user_profile.last_name }}">
+                        <label>Headline</label>
+                        <input type="text" name="headline" value="{{ user_profile.profile.headline }}">
+                        <label>Location</label>
+                        <input type="text" name="location" value="{{ user_profile.profile.location }}">
+                        <label>Education</label>
+                        <input type="text" name="education">
+                        <label>Profile picture</label>
+                        <input type="file" name="profile_picture">
+                        <label>Background image</label>
+                        <input type="file" name="background_image">
+                        <div style="margin-top:12px;display:flex;justify-content:flex-end;gap:8px;">
+                            <button type="button" class="btn ghost" id="editCancel">Cancel</button>
+                            <button type="submit" class="btn primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </section>
 
         <!-- Right Sidebar -->
@@ -247,6 +285,19 @@
     <script src="{% static 'js/modal.js' %}"></script>
     <script src="{% static 'js/notifications.js' %}"></script>
     <script src="{% static 'js/post_interactions.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            const btn = document.getElementById('editProfileBtn');
+            const modal = document.getElementById('editProfileModal');
+            const close = document.getElementById('editProfileClose');
+            const cancel = document.getElementById('editCancel');
+            if(btn && modal){
+                btn.addEventListener('click', ()=> modal.style.display='block');
+            }
+            if(close){ close.addEventListener('click', ()=> modal.style.display='none'); }
+            if(cancel){ cancel.addEventListener('click', ()=> modal.style.display='none'); }
+        });
+    </script>
 </body>
 
 </html>

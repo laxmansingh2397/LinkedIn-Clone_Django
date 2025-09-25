@@ -1,5 +1,7 @@
 from django import forms
 from .models import Post, Experience
+from .models import Profile
+from django.contrib.auth import get_user_model
 
 
 class PostForm(forms.ModelForm):
@@ -39,3 +41,29 @@ class ExperienceForm(forms.ModelForm):
             "description": forms.Textarea(attrs={"rows": 3}),
             "skills": forms.TextInput(attrs={"placeholder": "Comma-separated skills"}),
         }
+
+
+class ProfileForm(forms.ModelForm):
+    first_name = forms.CharField(required=False)
+    last_name = forms.CharField(required=False)
+
+    class Meta:
+        model = Profile
+        fields = ['headline', 'bio', 'location', 'profile_picture', 'background_image']
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        # update related User fields if provided
+        user = getattr(profile, 'user', None)
+        if user:
+            first = self.cleaned_data.get('first_name')
+            last = self.cleaned_data.get('last_name')
+            if first is not None:
+                user.first_name = first
+            if last is not None:
+                user.last_name = last
+            if commit:
+                user.save()
+        if commit:
+            profile.save()
+        return profile

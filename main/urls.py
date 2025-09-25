@@ -20,6 +20,7 @@ urlpatterns = [
     path('connections/', views.my_connections, name='connections'),
     path('notification/<int:notif_id>/', views.mark_notification, name='mark_notification'),
     path('profile/', views.profile, name='profile'),
+    path('profile/edit/', views.edit_profile, name='edit_profile'),
     # post interactions
     path('post/toggle-like/', views.toggle_post_like, name='toggle_post_like'),
     path('post/share/', views.share_post, name='share_post'),

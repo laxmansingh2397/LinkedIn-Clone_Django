@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Post, Experience, Connection, Notification, Like
 from .models import Share
 from .forms import PostForm, ExperienceForm
+from .forms import ProfileForm
 from django.db.models import Q
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -310,6 +311,29 @@ def profile(request):
     connection_users = user_model.objects.filter(id__in=accepted_ids)
 
     return render(request, 'profile/profile.html', {'user_profile': user, 'posts': posts, 'experiences': experiences, 'connection_count': connection_count, 'unread_notif_count': unread_count, 'recent_notifications': recent_notifications, 'liked_post_ids': liked_post_ids, 'connection_users': connection_users})
+
+
+@login_required
+def edit_profile(request):
+    user = request.user
+    profile = getattr(user, 'profile', None)
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        # populate first/last name from POST
+        form.data = form.data.copy()
+        form.data['first_name'] = request.POST.get('first_name','')
+        form.data['last_name'] = request.POST.get('last_name','')
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated')
+            return redirect('profile')
+        else:
+            messages.error(request, 'Could not save profile')
+    else:
+        initial = {'first_name': user.first_name, 'last_name': user.last_name}
+        form = ProfileForm(instance=profile, initial=initial)
+
+    return render(request, 'profile/edit_profile.html', {'form': form})
 
 
 @login_required
