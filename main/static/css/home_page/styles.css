@@ -222,6 +222,38 @@ header {
     margin-bottom: 10px;
 }
 
+/* post page specific tweaks: ensure posts are centered in the feed and look card-like */
+.feed {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+}
+
+.post, .post-box {
+    width: 100%;
+    max-width: 720px;
+}
+
+.post .meta {
+    display:flex;
+    gap:12px;
+    align-items:center;
+}
+
+.post .avatar-small {
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    overflow:hidden;
+    background:#e6eef6;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.post p { white-space: pre-line; }
+
 .post p {
     font-size: 14px;
     line-height: 1.5;padding-bottom: 10px;

@@ -91,15 +91,19 @@
             </div>
     </header>
 
-    <div class="post-box">
-        <h2>{{ user_profile.get_full_name|default:user_profile.username }}'s posts</h2>
-    </div>
+    <main class="container site-wrapper">
+        <aside class="sidebar-left"></aside>
 
-    {% for post in posts %}
-    <div class="post" id="post-{{ post.id }}">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-            <h4>{{ post.user.username }}</h4>
-        </div>
+        <section class="feed">
+            <div class="post-box">
+                <h2>{{ user_profile.get_full_name|default:user_profile.username }}'s posts</h2>
+            </div>
+
+            {% for post in posts %}
+            <div class="post" id="post-{{ post.id }}">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <h4>{{ post.user.username }}</h4>
+                </div>
 
         {% if post.title %}
         <h3>{{ post.title }}</h3>
@@ -139,7 +143,12 @@
         </div>
         <!-- share dropdown removed; modal will be used -->
     </div>
-    {% endfor %}
+            {% endfor %}
+
+        </section>
+
+        <aside class="sidebar-right"></aside>
+    </main>
 
     <!-- Share Modal (reusable) -->
     <div id="shareModal" class="modal" style="display:none;">

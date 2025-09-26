@@ -464,9 +464,37 @@ def share_post(request):
 def user_posts(request, username):
     if username != request.user.username:
         return redirect('profile')
-
+    # reuse home page context but only show the current user's posts
     posts = Post.objects.filter(user=request.user).order_by("-created_at")
-    return render(request, "posts_page/post_page.html", {
-        "user_profile": request.user,
-        "posts": posts,
-    })
+    # compute which posts the current user has liked to render UI state
+    liked_post_ids = set(Like.objects.filter(user=request.user, post__in=posts).values_list('post_id', flat=True))
+    experiences = Experience.objects.filter(user=request.user).order_by("-start_date")
+    experience_form = ExperienceForm()
+
+    # build connection helpers for templates
+    connections = Connection.objects.filter(Q(from_user=request.user) | Q(to_user=request.user))
+    accepted_ids = set()
+    pending_sent_ids = set()
+    pending_received_map = {}
+    pending_received_ids = set()
+
+    for connection in connections:
+        if connection.status == 'accepted':
+            other = connection.to_user if connection.from_user == request.user else connection.from_user
+            accepted_ids.add(other.id)
+        elif connection.status == 'pending':
+            if connection.from_user == request.user:
+                pending_sent_ids.add(connection.to_user.id)
+            else:
+                pending_received_map[connection.from_user.id] = connection.id
+                pending_received_ids.add(connection.from_user.id)
+
+    # notifications for header
+    unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+    recent_notifications = Notification.objects.filter(user=request.user).order_by('-created_at')[:6]
+
+    connection_count = len(accepted_ids)
+    user = get_user_model()
+    connection_users = user.objects.filter(id__in=accepted_ids)
+
+    return render(request, 'home_page/home_page.html', {"posts": posts, "form": PostForm(), "experience_form": experience_form,  "experiences": experiences, 'accepted_ids': accepted_ids, 'pending_sent_ids': pending_sent_ids, 'pending_received_map': pending_received_map, 'pending_received_ids': pending_received_ids, 'unread_notif_count': unread_count, 'recent_notifications': recent_notifications, 'connection_count': connection_count, 'liked_post_ids': liked_post_ids, 'connection_users': connection_users})
