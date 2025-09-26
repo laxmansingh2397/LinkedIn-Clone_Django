@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth import authenticate, login,get_user_model
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -219,23 +219,25 @@ def my_connections(request):
 
 @login_required
 def mark_notification(request, notif_id):
-    try:
-        notification = Notification.objects.get(pk=notif_id, user=request.user)
-        notification.is_read = True
-        notification.save()
-    except Notification.DoesNotExist:
-        # silently ignore if not found or not permitted
-        notification = None
 
-    # if this notification refers to a post like, redirect user to the post on home feed
-    if notification and notification.notif_type in ('post_like','post_shared'):
-        import re
-        message = re.search(r'id:(\d+)', notification.message or '')
-        if message:
-            post_id = message.group(1)
-            return redirect(f"/profile/#post-{post_id}")
+    notification = get_object_or_404(Notification, pk=notif_id, user=request.user)
+    notification.is_read = True
+    notification.save()
+    next_url = request.GET.get("next")
 
-    return redirect('connections')
+    # If the template provided a next URL, always honor it first.
+    if next_url:
+        return redirect(next_url)
+
+    # Otherwise fall back to notification-type specific redirects.
+    if notification.notif_type in ['post_like', 'post_shared']:
+        if notification.post:
+            return redirect("post_detail", post_id=notification.post.id)
+    elif notification.notif_type in ['connection_request', 'connection_accepted']:
+        return redirect("connections")
+
+    return redirect("profile")
+
 
 
 @login_required
@@ -458,6 +460,11 @@ def share_post(request):
         Notification.objects.create(user=to_user, from_user=request.user, notif_type='post_shared', message=f"{request.user.username} shared a post (id:{post.id})")
 
     return JsonResponse({'ok': True})
+
+@login_required
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    return render(request, "home_page/post_detail.html", {"post": post})
 
 
 @login_required

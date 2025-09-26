@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
     path('', views.default, name='default'),
@@ -28,6 +29,8 @@ urlpatterns = [
     path('post/toggle-like/', views.toggle_post_like, name='toggle_post_like'),
     path('post/share/', views.share_post, name='share_post'),
     path("user/<str:username>/posts/", views.user_posts, name="user_posts"),
+    path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    path("post/<int:post_id>/", views.post_detail, name="post_detail"),
 
 ]
 

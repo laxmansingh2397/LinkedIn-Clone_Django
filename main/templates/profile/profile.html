@@ -61,11 +61,19 @@
                             <ul>
                                 {% for n in recent_notifications %}
                                 <li>
+                                    {% if n.post %}
+                                    <a href="{% url 'mark_notification' n.id %}?next={% url 'post_detail' n.post.id %}"
+                                        style="text-decoration:none;color:inherit;display:block;">
+                                        <strong>{{ n.from_user.username }}</strong>: {{ n.message }} <br />
+                                        <small>{{ n.created_at|date:"M d, H:i" }}</small>
+                                    </a>
+                                    {% else %}
                                     <a href="{% url 'mark_notification' n.id %}"
                                         style="text-decoration:none;color:inherit;display:block;">
                                         <strong>{{ n.from_user.username }}</strong>: {{ n.message }} <br />
                                         <small>{{ n.created_at|date:"M d, H:i" }}</small>
                                     </a>
+                                    {% endif %}
                                 </li>
                                 {% empty %}
                                 <li>No notifications</li>

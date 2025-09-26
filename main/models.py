@@ -203,6 +203,7 @@ class Notification(models.Model):
     message = models.CharField(max_length=255, blank=True)
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    post = models.ForeignKey('Post', null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Notification to {self.user.username} from {self.from_user.username} - {self.notif_type}"
